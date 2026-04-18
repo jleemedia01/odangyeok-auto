@@ -48,6 +48,32 @@ QUESTION_MAX_MC  = 24
 CTA_MIN = 130
 CTA_MAX = 180
 
+# 품질 임계 — confidence 95 미만은 자동 폐기
+CONFIDENCE_MIN = 95
+
+# ── 강한 시스템 프롬프트 (팩트체크 내재화) ────────────────────────────────────
+QUIZ_SYSTEM_PROMPT = """당신은 역사 퀴즈 출제자입니다. 정확성이 생명입니다.
+
+【필수 규칙】
+1. 연도, 인명, 지명은 100% 정확해야 합니다
+2. 역사학계에서 확정된 사실만 출제하세요
+3. 논란이 있거나 애매한 내용은 절대 출제 금지
+4. 정답이 명확하지 않으면 다른 문제로 교체
+5. 출처가 불분명한 일화나 야사는 제외
+6. 생성 전 내부적으로 2번 검증하세요
+
+【품질 기준】
+- 초급: 교과서 수준 확정 사실
+- 중급: 역사 전공자도 인정하는 정설
+- 고급: 학계 consensus 있는 심화 내용
+
+【예시】
+✅ 좋은 문제: "세종대왕은 몇 년에 즉위했는가? 1418년"
+❌ 나쁜 문제: "세종대왕의 키는? 170cm" (추정치, 불확실)
+
+생성 후 스스로 재검증하고, 확신 없으면 confidence_score 를 낮게 (또는 폐기).
+출력은 JSON 만, 설명·인사말·마크다운 금지."""
+
 
 def safe_print(*args, **kwargs):
     try:
@@ -150,6 +176,17 @@ def _validate_quiz_schema(data: dict, quiz_type: str) -> None:
     if len(q) > limit:
         raise ValueError(f"question 너무 김 ({len(q)}자, {limit}자 이내)")
 
+    # confidence_score 검증 — 95 미만 자동 폐기
+    try:
+        score = int(data.get("confidence_score", 0))
+    except (TypeError, ValueError):
+        raise ValueError(f"confidence_score 형식 오류: {data.get('confidence_score')!r}")
+    if score < CONFIDENCE_MIN:
+        raise ValueError(
+            f"confidence_score 미달 ({score} < {CONFIDENCE_MIN}) — 문제 폐기"
+        )
+    data["confidence_score"] = score
+
 
 # ── 프롬프트 빌더 ─────────────────────────────────────────────────────────────
 def _build_prompt(
@@ -232,6 +269,12 @@ def _build_prompt(
 - title: 20자 이내, 이모지 1~2개 (배치 전체의 제목이 아니므로 짧게)
 - thumbnail_text: 12자 이내
 
+[confidence_score 필드 — 중요]
+- 0~100 정수로 자신이 생성한 문제의 역사 사실 정확도를 자가 평가
+- 연도/인명/사건 관계가 100% 확실하면 95~100
+- 추정·전설·논란 요소가 조금이라도 있으면 0~94 (이 경우 시스템이 자동 폐기)
+- 확신 없으면 솔직히 낮은 점수 기입 — 시스템이 재시도함
+
 [출력 형식 — 다른 말 없이 JSON만]
 {{
   "title": "...",
@@ -239,6 +282,7 @@ def _build_prompt(
 {schema_body}  "explanation": "...",
   "era": "{era}",
   "difficulty": "{difficulty}",
+  "confidence_score": 95~100,
   "tags": ["역사퀴즈", "{era}", "..."]
 }}"""
 
@@ -348,13 +392,17 @@ def _generate_one(
     )
 
     last_err: Exception | None = None
-    for attempt in range(3):
+    rejected_log: list[dict] = []
+    for attempt in range(4):
         try:
             resp = client.chat.completions.create(
                 model=LLM_MODEL,
-                max_tokens=800,
+                max_tokens=900,
                 response_format={"type": "json_object"},
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": QUIZ_SYSTEM_PROMPT},
+                    {"role": "user",   "content": prompt},
+                ],
             )
             raw = resp.choices[0].message.content.strip()
             data = json.loads(raw)
@@ -383,10 +431,26 @@ def _generate_one(
 
         except (json.JSONDecodeError, ValueError) as e:
             last_err = e
-            safe_print(f"  [퀴즈] 재시도 {attempt+1}/3: {e}", file=sys.stderr)
+            # 폐기된 문제도 기록 — confidence 미달 케이스 추적용
+            rejected_log.append({
+                "attempt":    attempt + 1,
+                "reason":     str(e),
+                "question":   (data.get("question") if "data" in dir() and isinstance(data, dict) else None),
+                "confidence": (data.get("confidence_score") if "data" in dir() and isinstance(data, dict) else None),
+            })
+            safe_print(f"  [퀴즈] 폐기/재시도 {attempt+1}/4: {e}", file=sys.stderr)
             time.sleep(2)
 
-    raise RuntimeError(f"퀴즈 생성 실패 (3회): {last_err}")
+    if rejected_log:
+        safe_print(
+            f"  [퀴즈] ★ 총 폐기 {len(rejected_log)}건: "
+            + " / ".join(
+                f"#{r['attempt']}({r['confidence']}) {r['reason'][:40]}"
+                for r in rejected_log
+            ),
+            file=sys.stderr,
+        )
+    raise RuntimeError(f"퀴즈 생성 실패 (4회, 폐기 {len(rejected_log)}건): {last_err}")
 
 
 # ── 공개 API: 배치 생성 ───────────────────────────────────────────────────────
@@ -443,6 +507,7 @@ def generate_quiz_batch(
             "type":       q["type"],
             "question":   q["question"],
             "answer":     q["answer"],
+            "confidence": q.get("confidence_score"),
             "title":      q.get("title", ""),
             "timestamp":  datetime.now().isoformat(),
         })
