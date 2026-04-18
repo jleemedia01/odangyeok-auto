@@ -132,11 +132,10 @@ def run_pipeline(
         for i, q in enumerate(quizzes):
             log.info(f"  Q{i+1}/{cfg.NUM_QUIZZES} [{q['era']}/{q['difficulty']}/{q['type']}] {q['question']} → {q['answer']}")
 
-        # ── 2. CTA + TTS 에피소드 합성 ──────────────────────────────────────
-        log.info("[2/7] CTA 생성 + TTS 에피소드 합성 (150초)...")
-        from quiz_gen import generate_episode_cta
-        cta_text = generate_episode_cta(quizzes)
-        log.info(f"  CTA ({len(cta_text)}자): {cta_text[:60]}...")
+        # ── 2. TTS 에피소드 합성 (고정 CTA 멘트 사용) ──────────────────────
+        log.info(f"[2/7] TTS 에피소드 합성 ({int(cfg.TOTAL_DURATION)}초)...")
+        cta_text = cfg.CTA_FIXED_TEXT
+        log.info(f"  CTA ({len(cta_text)}자): {cta_text}")
         job["cta"] = cta_text
 
         from tts import generate_episode_tts

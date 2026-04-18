@@ -28,12 +28,16 @@ from config import (
     ASSETS_DIR,
     SEG_QUESTION,
     SEG_COUNTDOWN,
+    SEG_CTA,
     QUIZ_DURATION,
     CTA_START,
     TOTAL_DURATION,
     NUM_QUIZZES,
     QUIZ_TRANSITION_FADE,
     CHANNEL_NAME,
+    CHANNEL_HEADER_TEXT,
+    CHANNEL_HEADER_FONTSIZE,
+    CHANNEL_HEADER_Y,
     FONT_BOLD,
 )
 
@@ -132,28 +136,32 @@ def render_video(
 
     fx_chain = ",".join(fx_parts) + "," if fx_parts else ""
 
-    # ── 채널 워터마크 ──────────────────────────────────────────────────────
-    watermark = (
-        f"drawtext=text='{CHANNEL_NAME} 5문제 챌린지'"
+    # ── 채널 헤더 (상단 중앙, 전체 132초 고정, 노란색 + 검은 외곽선) ────────
+    channel_header = (
+        f"drawtext=text='{CHANNEL_HEADER_TEXT}'"
         f"{fontopt}"
-        f":fontsize=36:fontcolor=white@0.82"
-        f":x=30:y=h-80"
-        f":box=1:boxcolor=black@0.55:boxborderw=10,"
+        f":fontsize={CHANNEL_HEADER_FONTSIZE}:fontcolor=yellow"
+        f":bordercolor=black:borderw=6"
+        f":x=(w-text_w)/2:y={CHANNEL_HEADER_Y},"
     )
 
-    # ── CTA 구간 구독 박스 (화면 하단 중앙, 펄스 애니메이션) ────────────────
-    # VIDEO_HEIGHT=1920 기준 숫자 리터럴 사용 (drawtext 는 ih 변수 미지원)
-    _box_y  = int(VIDEO_HEIGHT * 0.78)            # 1497
-    _text_y = _box_y + 40                         # 1537
-    subscribe_overlay = (
-        f"drawbox=x=(iw-860)/2:y={_box_y}:w=860:h=160:color=red@0.92:t=fill"
-        f":enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})',"
-        f"drawtext=text='👉 구독하고 역사퀴즈왕 되기'"
-        f"{fontopt}"
-        f":fontsize=72:fontcolor=white"
-        f":x=(w-text_w)/2:y={_text_y}"
-        f":enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})',"
-    )
+    # ── CTA 배지 3개 (각 4초, 중앙 대형) ──────────────────────────────────
+    _badge_dur = SEG_CTA / 3.0                     # 4.0s
+    badges: list[tuple[float, float, str]] = [
+        (CTA_START + 0 * _badge_dur, CTA_START + 1 * _badge_dur, "👍 좋아요"),
+        (CTA_START + 1 * _badge_dur, CTA_START + 2 * _badge_dur, "✔ 구독"),
+        (CTA_START + 2 * _badge_dur, CTA_START + 3 * _badge_dur, "🔔 알림설정"),
+    ]
+    cta_badges = ""
+    for st, en, text in badges:
+        cta_badges += (
+            f"drawtext=text='{text}'"
+            f"{fontopt}"
+            f":fontsize=160:fontcolor=yellow"
+            f":bordercolor=black:borderw=10"
+            f":x=(w-text_w)/2:y=(h-text_h)/2"
+            f":enable='between(t,{st:.2f},{en:.2f})',"
+        )
 
     video_chain = (
         f"[0:v]"
@@ -163,8 +171,8 @@ def render_video(
         f"fps={VIDEO_FPS},format=yuv420p,"
         f"{fx_chain}"
         f"{subs_filter}"
-        f"{watermark}"
-        f"{subscribe_overlay}"
+        f"{channel_header}"
+        f"{cta_badges}"
         f"fade=t=in:st=0:d=0.4,"
         f"fade=t=out:st={TOTAL_DURATION - 0.6:.3f}:d=0.6"
         f"[vfinal]"

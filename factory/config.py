@@ -32,16 +32,24 @@ CHANNEL_NAME    = "오당역"
 CHANNEL_TAGLINE = "오! 당신은 역사퀴즈왕"
 CHANNEL_SUBTITLE = "하루 한 문제, 역사 퀴즈왕 도전!"
 
-# ── Episode = 5 quizzes × 24s + CTA 30s = 150s (2분 30초) ─────────────────────
+# ── Episode = 5 quizzes × 24s + CTA 12s = 132s (2분 12초) ─────────────────────
 NUM_QUIZZES     = 5
 SEG_QUESTION    = 5.0    # 문제 제시
 SEG_COUNTDOWN   = 3.0    # 3→2→1 (비프음)
 SEG_REVEAL      = 3.0    # 정답 공개
 SEG_EXPLANATION = 13.0   # 해설
 QUIZ_DURATION   = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION   # 24.0
-SEG_CTA         = 30.0   # 구독·알림·다음편 티저 아웃트로
-TOTAL_DURATION  = NUM_QUIZZES * QUIZ_DURATION + SEG_CTA                          # 150.0
+SEG_CTA         = 12.0   # 짧은 CTA: 좋아요·구독·알림 3개 배지 각 4s
+TOTAL_DURATION  = NUM_QUIZZES * QUIZ_DURATION + SEG_CTA                          # 132.0
 CTA_START       = NUM_QUIZZES * QUIZ_DURATION                                    # 120.0
+
+# ── CTA 고정 멘트 (12초 안에 읽힘, 남성 onyx 낭독) ─────────────────────────────
+CTA_FIXED_TEXT = "좋아요, 구독, 알림 설정 부탁드립니다!"
+
+# ── 채널 헤더 (상단 고정 오버레이, 전체 132초 동안 노출) ──────────────────────
+CHANNEL_HEADER_TEXT = "오! 당신은 역사퀴즈왕"
+CHANNEL_HEADER_FONTSIZE = 90
+CHANNEL_HEADER_Y        = 50
 
 # ── Transition between quizzes ────────────────────────────────────────────────
 QUIZ_TRANSITION_FADE = 0.35   # 문제 경계에서 짧은 플래시/페이드 (seconds)

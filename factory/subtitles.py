@@ -190,22 +190,9 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
 
 
 def _cta_events(cta_text: str) -> str:
-    """아웃트로 30s CTA 자막. 상단 훅 + 중앙 구독 배지 + 하단 본문 자막."""
+    """아웃트로 12s CTA 자막. 배지 3개는 renderer drawtext 가 담당 —
+    여기선 하단 TTS 본문 자막만 표시. 상단은 채널 헤더가 차지해 CTA_H 미사용."""
     out = ""
-    # 상단 큰 훅 — 전체 30s 고정
-    out += _dlg("CTA_H", CTA_START, TOTAL_DURATION, "역사퀴즈왕 도전!")
-
-    # 중앙 구독 배지 — 10초 단위로 번갈아 표시 (구독 → 알림 → 구독 → 알림)
-    cycles = [
-        (CTA_START + 0,  CTA_START + 7,  "✔ 구독 +  🔔 알림"),
-        (CTA_START + 7,  CTA_START + 15, "💬 점수 댓글 남기기"),
-        (CTA_START + 15, CTA_START + 23, "✔ 구독 +  🔔 알림"),
-        (CTA_START + 23, TOTAL_DURATION, "📺 다음 편도 놓치지 마세요"),
-    ]
-    for s, e, t in cycles:
-        out += _dlg("CTA_SUB", s, e, t)
-
-    # 하단 본문 — CTA 텍스트를 시간 비례로 할당
     chunks = _split_chunks(cta_text)
     if chunks:
         char_counts = [max(len(c.replace(" ", "")), 1) for c in chunks]
