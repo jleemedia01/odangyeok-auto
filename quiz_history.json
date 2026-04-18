@@ -348,5 +348,60 @@
     "answer": "1",
     "title": "대한민국 최초의 국회는?",
     "timestamp": "2026-04-18T17:39:36.387561"
+  },
+  {
+    "episode_num": 33,
+    "quiz_idx": 1,
+    "era": "삼국",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "신라의 법흥왕은 어느 왕?",
+    "answer": "3",
+    "title": "신라의 법흥왕은 누구?👑",
+    "timestamp": "2026-04-18T18:16:20.120157"
+  },
+  {
+    "episode_num": 33,
+    "quiz_idx": 2,
+    "era": "조선",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "세종대왕은 음악을 발전시켰다.",
+    "answer": "O",
+    "title": "세종대왕의 업적? 📜",
+    "timestamp": "2026-04-18T18:16:20.120165"
+  },
+  {
+    "episode_num": 33,
+    "quiz_idx": 3,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "대항해 시대의 시작은?",
+    "answer": "1",
+    "title": "유럽의 대항해 시대⛵️",
+    "timestamp": "2026-04-18T18:16:20.120173"
+  },
+  {
+    "episode_num": 33,
+    "quiz_idx": 4,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "대한제국은 1910년에 소멸했다.",
+    "answer": "O",
+    "title": "대한제국은 1910년에 소멸? 🇰🇷",
+    "timestamp": "2026-04-18T18:16:20.120175"
+  },
+  {
+    "episode_num": 33,
+    "quiz_idx": 5,
+    "era": "고려",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "고려의 유명한 왕은 누구?",
+    "answer": "1",
+    "title": "고려의 유명한 왕은?👑",
+    "timestamp": "2026-04-18T18:16:20.120177"
   }
 ]
