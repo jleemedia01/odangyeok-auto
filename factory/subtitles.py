@@ -23,11 +23,12 @@ from config import (
     VIDEO_WIDTH,
 )
 
-# ── 문제 번호 배지 위치 (사용자 요청: 우측 상단 절대 좌표) ────────────────────
-# \an9 (top-right anchor) 기준: (NUM_BADGE_X, NUM_BADGE_Y) 가 텍스트의 우측 상단 점
-NUM_BADGE_X = VIDEO_WIDTH - 50    # 우측에서 50px (텍스트 우측 끝)
-NUM_BADGE_Y = 100                  # 상단에서 100px
-NUM_BADGE_FONTSIZE = 60
+# ── 문제 번호 배지 위치 (우측 상단 · 채널 헤더 아래) ──────────────────────────
+# 채널 헤더(72pt @ y=50)가 ~y=50-140 차지 → NUM 은 그 아래로 내려서 겹침 방지.
+# \an9 (top-right anchor): (NUM_BADGE_X, NUM_BADGE_Y) 가 텍스트의 우측 상단 점
+NUM_BADGE_X = VIDEO_WIDTH - 50    # 우측에서 50px
+NUM_BADGE_Y = 180                  # 헤더 아래로 내림 (헤더와 겹침 방지)
+NUM_BADGE_FONTSIZE = 52
 
 _MAX_CHARS_PER_LINE = 11
 
@@ -145,12 +146,10 @@ def _ass_header() -> str:
         f"&H00FFFFFF,&H000000FF,&H00000000,&H00000000,"
         f"-1,0,0,0,100,100,0,0,1,{SUBTITLE_OUTLINE},{SUBTITLE_SHADOW},"
         f"2,60,60,260,1\n"
-        # 문제 번호 배지 — 우측 상단 반투명 검은 박스
-        # Alignment/Margin 은 inline \\pos 가 override 하므로 포맷만 유지.
-        # BorderStyle 3 + BackColour 반투명 검정 (&H90000000 = alpha 90, 검정 배경)
+        # 문제 번호 배지 — 우측 상단 반투명 검은 박스 (채널 헤더 아래)
         f"Style: NUM,{SUBTITLE_FONT},{NUM_BADGE_FONTSIZE},"
         f"&H00FFFFFF,&H000000FF,&H00000000,&H90000000,"
-        f"-1,0,0,0,100,100,0,0,3,10,0,"
+        f"-1,0,0,0,100,100,0,0,3,8,0,"
         f"9,0,0,0,1\n"
         # CTA 타이틀 — 큰 노란색 (상단)
         f"Style: CTA_H,{SUBTITLE_FONT},120,"

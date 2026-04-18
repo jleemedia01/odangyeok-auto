@@ -33,11 +33,12 @@ CHANNEL_TAGLINE = "오! 당신은 역사퀴즈왕"
 CHANNEL_SUBTITLE = "하루 한 문제, 역사 퀴즈왕 도전!"
 
 # ── Episode = 5 quizzes × 24s + CTA 12s = 132s (2분 12초) ─────────────────────
+# 구간 타이밍: 질문·해설 길이에 따라 TTS 가 잘리는 현상 방지
 NUM_QUIZZES     = 5
-SEG_QUESTION    = 5.0    # 문제 제시
+SEG_QUESTION    = 6.0    # 문제 제시 (5→6s, 질문이 끝까지 읽히게)
 SEG_COUNTDOWN   = 3.0    # 3→2→1 (비프음)
 SEG_REVEAL      = 3.0    # 정답 공개
-SEG_EXPLANATION = 13.0   # 해설
+SEG_EXPLANATION = 12.0   # 해설 (13→12s, 질문에 1s 양보)
 QUIZ_DURATION   = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION   # 24.0
 SEG_CTA         = 12.0   # 짧은 CTA: 좋아요·구독·알림 3개 배지 각 4s
 TOTAL_DURATION  = NUM_QUIZZES * QUIZ_DURATION + SEG_CTA                          # 132.0
@@ -47,8 +48,9 @@ CTA_START       = NUM_QUIZZES * QUIZ_DURATION                                   
 CTA_FIXED_TEXT = "좋아요, 구독, 알림 설정 부탁드립니다!"
 
 # ── 채널 헤더 (상단 고정 오버레이, 전체 132초 동안 노출) ──────────────────────
+# 1080 width 안에 여유 있게 들어가도록 72pt 로 축소 (13자 × 72 ≈ 936px).
 CHANNEL_HEADER_TEXT = "오! 당신은 역사퀴즈왕"
-CHANNEL_HEADER_FONTSIZE = 90
+CHANNEL_HEADER_FONTSIZE = 72
 CHANNEL_HEADER_Y        = 50
 
 # ── Transition between quizzes (부드러운 페이드 전환) ─────────────────────────
@@ -69,8 +71,8 @@ TTS_VOICE_QUESTION = "nova"     # 또렷한 여성 — 문제 제시
 TTS_VOICE_REVEAL   = "onyx"     # 무게감 있는 남성 — 정답 공개
 TTS_VOICE_EXPLAIN  = "shimmer"  # 친근한 여성 — 해설
 TTS_VOICE_CTA      = "onyx"     # 무게감 있는 남성 — 아웃트로 CTA
-TTS_SPEED_QUESTION = 1.05       # 질문은 정확한 발음 우선 — 과속 지양
-TTS_SPEED_EXPLAIN  = 1.10       # 13초 안에 확실히 읽히게
+TTS_SPEED_QUESTION = 1.10       # 6s 안에 여유 있게 낭독
+TTS_SPEED_EXPLAIN  = 1.15       # 12s 안에 확실히 읽히게
 TTS_SPEED_CTA      = 1.0
 
 # ── Video specs ────────────────────────────────────────────────────────────────
