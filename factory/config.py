@@ -1,0 +1,167 @@
+"""
+오당역 — Configuration
+채널: 오당역 (오! 당신은 역사퀴즈왕)
+컨텐츠: 60초 역사 퀴즈 쇼츠 (OX / 4지선다)
+"""
+
+import os
+from pathlib import Path
+
+# ── Path resolution ────────────────────────────────────────────────────────────
+FACTORY_DIR   = Path(__file__).parent
+REPO_ROOT     = FACTORY_DIR.parent
+ASSETS_DIR    = REPO_ROOT / "assets"
+WORKSPACE     = REPO_ROOT / "workspace"
+OUTPUT_VIDEOS = REPO_ROOT / "output" / "videos"
+
+for d in [WORKSPACE, OUTPUT_VIDEOS, ASSETS_DIR / "backgrounds", ASSETS_DIR / "music"]:
+    d.mkdir(parents=True, exist_ok=True)
+
+# ── Secrets ────────────────────────────────────────────────────────────────────
+_env_path = REPO_ROOT / "system" / ".env"
+if _env_path.exists():
+    from dotenv import load_dotenv
+    load_dotenv(_env_path)
+
+OPENAI_API_KEY     = os.environ.get("OPENAI_API_KEY", "")
+REPLICATE_API_TOKEN = os.environ.get("REPLICATE_API_TOKEN", "")
+YOUTUBE_API_KEY    = os.environ.get("YOUTUBE_API_KEY", "")
+
+# ── Channel info ───────────────────────────────────────────────────────────────
+CHANNEL_NAME    = "오당역"
+CHANNEL_TAGLINE = "오! 당신은 역사퀴즈왕"
+CHANNEL_SUBTITLE = "하루 한 문제, 역사 퀴즈왕 도전!"
+
+# ── 60s Shorts segment timing (seconds) ───────────────────────────────────────
+SEG_QUESTION    = 5.0    # 퀴즈 제시
+SEG_COUNTDOWN   = 5.0    # 카운트다운 (5→4→3→2→1)
+SEG_REVEAL      = 5.0    # 정답 공개
+SEG_EXPLANATION = 45.0   # 해설
+TOTAL_DURATION  = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION  # 60.0
+
+# ── LLM ────────────────────────────────────────────────────────────────────────
+LLM_MODEL = "gpt-4o-mini"
+
+# ── TTS ────────────────────────────────────────────────────────────────────────
+TTS_MODEL         = "tts-1"
+TTS_VOICE_QUESTION = "nova"     # 또렷한 여성 — 문제 제시
+TTS_VOICE_REVEAL   = "onyx"     # 무게감 있는 남성 — 정답 공개
+TTS_VOICE_EXPLAIN  = "shimmer"  # 친근한 여성 — 해설
+TTS_SPEED_QUESTION = 1.0
+TTS_SPEED_EXPLAIN  = 1.05       # 45초 안에 해설 다 말하게
+
+# ── Video specs ────────────────────────────────────────────────────────────────
+VIDEO_WIDTH   = 1080
+VIDEO_HEIGHT  = 1920
+VIDEO_FPS     = 30
+VIDEO_CODEC   = "libx264"
+VIDEO_PRESET  = "ultrafast"
+VIDEO_CRF     = 30
+AUDIO_CODEC   = "aac"
+AUDIO_BITRATE = "320k"
+BGM_VOLUME    = 0.10
+TTS_VOLUME    = 1.0
+
+# ── Subtitle styling ───────────────────────────────────────────────────────────
+SUBTITLE_FONT           = "NanumGothicBold"
+SUBTITLE_FONT_SIZE      = 62
+SUBTITLE_OUTLINE        = 24
+SUBTITLE_SHADOW         = 0
+SUBTITLE_MARGIN_V       = 600
+
+# ── Thumbnail ──────────────────────────────────────────────────────────────────
+THUMBNAIL_WIDTH   = 1280
+THUMBNAIL_HEIGHT  = 720
+
+# ── Font detection ─────────────────────────────────────────────────────────────
+def _find_font(candidates):
+    for p in candidates:
+        if Path(p).exists():
+            return p
+    return None
+
+FONT_BOLD = _find_font([
+    "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
+    "/usr/share/fonts/truetype/nanum/NanumGothicExtraBold.ttf",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+    "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+    "/Library/Fonts/Arial Bold.ttf",
+])
+FONT_REGULAR = _find_font([
+    "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/System/Library/Fonts/Supplemental/Arial.ttf",
+    "/Library/Fonts/Arial.ttf",
+])
+
+# ── 시대 분류 (Era) ────────────────────────────────────────────────────────────
+ERAS: dict[str, str] = {
+    "삼국":   "고조선·삼국시대·가야·통일신라·발해 (BC 2333 ~ AD 918)",
+    "고려":   "고려 (918 ~ 1392)",
+    "조선":   "조선 (1392 ~ 1897)",
+    "근현대": "대한제국·일제강점기·대한민국 (1897 ~ 현재)",
+    "세계사": "세계사 (고대 ~ 20세기)",
+}
+
+ERA_ORDER: list[str] = ["삼국", "고려", "조선", "근현대", "세계사"]
+
+# 목표 시대 분포 — 사용자 요청: 한국사 80%, 세계사 20% 가정
+# 한국사 4시기에 균등 분배 (20%씩), 세계사 20%
+ERA_WEIGHTS: dict[str, float] = {
+    "삼국":   0.20,
+    "고려":   0.20,
+    "조선":   0.20,
+    "근현대": 0.20,
+    "세계사": 0.20,
+}
+
+# ── 난이도 분류 (Difficulty) ───────────────────────────────────────────────────
+DIFFICULTIES: dict[str, str] = {
+    "초급": "교과서 수준 기본 상식 — 중학생도 정답률 70% 이상",
+    "중급": "고등 한국사 수준 — 성인 정답률 50% 내외",
+    "고급": "깊이 있는 역사 지식 — 역덕·전공자 수준",
+}
+
+DIFFICULTY_WEIGHTS: dict[str, float] = {
+    "초급": 0.60,
+    "중급": 0.30,
+    "고급": 0.10,
+}
+
+# ── 퀴즈 유형 (Type) ───────────────────────────────────────────────────────────
+QUIZ_TYPES: list[str] = ["OX", "4지선다"]
+
+# ── 시대별 배경 컬러 (썸네일 + 그라디언트 폴백) ────────────────────────────────
+ERA_COLORS: dict[str, tuple[tuple[int, int, int], tuple[int, int, int]]] = {
+    # (primary, accent)
+    "삼국":   ((156,  92,  43), (234, 179, 108)),  # 흙빛·청동빛
+    "고려":   (( 61,  90, 128), (168, 192, 224)),  # 청자색
+    "조선":   ((124,  45,  18), (237, 180, 108)),  # 단청 주홍
+    "근현대": (( 45,  55,  72), (229, 231, 235)),  # 세피아 모노크롬
+    "세계사": ((120,  53, 132), (246, 214,  92)),  # 보라·금
+}
+
+# ── 이미지 생성 backend ────────────────────────────────────────────────────────
+# "dalle" | "replicate" — 우선 DALL-E 3 사용, 실패 시 Replicate 폴백
+IMAGE_BACKEND_PRIMARY  = "dalle"
+IMAGE_BACKEND_FALLBACK = "replicate"
+REPLICATE_MODEL = "black-forest-labs/flux-schnell"
+
+# ── YouTube ────────────────────────────────────────────────────────────────────
+YT_TOKEN_FILE   = REPO_ROOT / "youtube_token_odangyeok.json"
+YT_SECRETS_FILE = REPO_ROOT / "client_secret.json"
+YT_CATEGORY_ID  = "27"          # Education
+YT_DEFAULT_PRIVACY = "private"
+YT_SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube",
+    "https://www.googleapis.com/auth/youtube.force-ssl",
+]
+
+# ── Upload schedule (KST 기준 인기 시간대) ─────────────────────────────────────
+# 18:00 UTC = 03:00 KST
+# 00:00 UTC = 09:00 KST
+# 12:00 UTC = 21:00 KST
+UPLOAD_SLOTS = ["00:00", "12:00", "18:00"]
+
+LOG_FILE = REPO_ROOT / "factory.log"

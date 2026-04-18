@@ -1,0 +1,9 @@
+system/.env
+youtube_token_*.json
+client_secret*.json
+workspace/
+output/
+factory.log
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,125 @@
+name: 오당역
+on:
+  schedule:
+    - cron: "0 22 * * *"   # 07:00 KST
+    - cron: "0 4 * * *"    # 13:00 KST
+    - cron: "0 12 * * *"   # 21:00 KST
+  workflow_dispatch:
+    inputs:
+      era:
+        description: "시대 (삼국/고려/조선/근현대/세계사, 빈칸=자동)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - "삼국"
+          - "고려"
+          - "조선"
+          - "근현대"
+          - "세계사"
+      difficulty:
+        description: "난이도 (초급/중급/고급, 빈칸=자동)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - "초급"
+          - "중급"
+          - "고급"
+      type:
+        description: "유형 (OX/4지선다, 빈칸=자동 번갈아)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - "OX"
+          - "4지선다"
+      count:
+        description: "생성 개수"
+        required: false
+        default: "1"
+      no_upload:
+        description: "업로드 스킵 (테스트용)"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    concurrency:
+      group: odangyeok-production
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system deps (ffmpeg + Korean fonts)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-liberation fonts-nanum fonts-nanum-extra
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Create directory structure
+        run: mkdir -p output/videos workspace assets/backgrounds assets/music
+
+      - name: Run Factory
+        env:
+          OPENAI_API_KEY:             ${{ secrets.OPENAI_API_KEY }}
+          REPLICATE_API_TOKEN:        ${{ secrets.REPLICATE_API_TOKEN }}
+          YOUTUBE_API_KEY:            ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_TOKEN_ODANGYEOK:    ${{ secrets.YOUTUBE_TOKEN_ODANGYEOK }}
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.era }}" ]; then
+            ARGS="$ARGS --era ${{ github.event.inputs.era }}"
+          fi
+          if [ -n "${{ github.event.inputs.difficulty }}" ]; then
+            ARGS="$ARGS --difficulty ${{ github.event.inputs.difficulty }}"
+          fi
+          if [ -n "${{ github.event.inputs.type }}" ]; then
+            ARGS="$ARGS --type ${{ github.event.inputs.type }}"
+          fi
+          COUNT="${{ github.event.inputs.count || '1' }}"
+          ARGS="$ARGS --count $COUNT"
+          if [ "${{ github.event.inputs.no_upload }}" = "true" ]; then
+            ARGS="$ARGS --no-upload"
+          fi
+          python factory/run_ci.py $ARGS
+
+      - name: Commit quiz history
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f quiz_history.json 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update quiz history [skip ci]"
+            git push
+          else
+            echo "히스토리 변경 없음 — commit 스킵"
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: odangyeok-videos-${{ github.run_id }}
+          path: output/videos/*.mp4
+          retention-days: 7
+          if-no-files-found: warn
