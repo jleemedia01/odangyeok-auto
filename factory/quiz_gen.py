@@ -304,23 +304,24 @@ def generate_quiz(
             resp = client.chat.completions.create(
                 model=LLM_MODEL,
                 max_tokens=1200,
+                response_format={"type": "json_object"},
                 messages=[{"role": "user", "content": prompt}],
             )
             raw = resp.choices[0].message.content.strip()
+            data = json.loads(raw)
 
-            if "```" in raw:
-                parts = raw.split("```")
-                raw = parts[1] if len(parts) > 1 else raw
-                if raw.startswith("json"):
-                    raw = raw[4:]
-            m = re.search(r"\{[\s\S]*\}", raw)
-            if not m:
-                raise ValueError("JSON 미발견")
-            data = json.loads(m.group())
+            # 우리가 결정한 메타값을 강제 주입 — 모델이 누락/변조해도 무관
+            data["era"]        = era
+            data["difficulty"] = difficulty
+            data["type"]       = quiz_type
 
             _validate_quiz_schema(data, quiz_type)
             data = _factcheck(data, client)
-            _validate_quiz_schema(data, quiz_type)   # 수정본도 재검증
+            # 팩트체크 수정본도 우리 메타값 유지
+            data["era"]        = era
+            data["difficulty"] = difficulty
+            data["type"]       = quiz_type
+            _validate_quiz_schema(data, quiz_type)
 
             # 히스토리 저장
             episode_num = len(history) + 1
