@@ -403,5 +403,65 @@
     "answer": "1",
     "title": "고려의 유명한 왕은?👑",
     "timestamp": "2026-04-18T18:16:20.120177"
+  },
+  {
+    "episode_num": 38,
+    "quiz_idx": 1,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "한국전쟁은 1950년에 발발했다.",
+    "answer": "O",
+    "confidence": 100,
+    "title": "한국전쟁 발발 연도는? 🪖",
+    "timestamp": "2026-04-18T18:48:31.792965"
+  },
+  {
+    "episode_num": 38,
+    "quiz_idx": 2,
+    "era": "조선",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "세종대왕이 설계한 제도는?",
+    "answer": "1",
+    "confidence": 98,
+    "title": "세종대왕의 업적은? 🏛️",
+    "timestamp": "2026-04-18T18:48:31.792973"
+  },
+  {
+    "episode_num": 38,
+    "quiz_idx": 3,
+    "era": "삼국",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "신라는 668년에 통일했다.",
+    "answer": "O",
+    "confidence": 100,
+    "title": "신라의 삼국통일! 🎉",
+    "timestamp": "2026-04-18T18:48:31.792979"
+  },
+  {
+    "episode_num": 38,
+    "quiz_idx": 4,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "1차 세계 대전 시작 연도는?",
+    "answer": "1",
+    "confidence": 100,
+    "title": "첫번째 세계대전은?",
+    "timestamp": "2026-04-18T18:48:31.792982"
+  },
+  {
+    "episode_num": 38,
+    "quiz_idx": 5,
+    "era": "고려",
+    "difficulty": "고급",
+    "type": "OX",
+    "question": "개경은 고려의 수도였다.",
+    "answer": "O",
+    "confidence": 100,
+    "title": "개경이 고려의 수도다🏯",
+    "timestamp": "2026-04-18T18:48:31.792984"
   }
 ]
