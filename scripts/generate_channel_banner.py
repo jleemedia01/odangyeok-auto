@@ -19,12 +19,12 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 
 REPO_ROOT  = Path(__file__).parent.parent
-OUT_2560   = REPO_ROOT / "assets" / "channel_banner_2560.png"
+OUT_FINAL  = REPO_ROOT / "assets" / "channel_banner_2048.png"
 OUT_RAW    = REPO_ROOT / "assets" / "channel_banner_raw_1792.png"
 
-BANNER_W, BANNER_H = 2560, 1440
-# 안전 영역 (모든 기기에서 보이는 중앙 영역)
-SAFE_W, SAFE_H = 1546, 423
+BANNER_W, BANNER_H = 2048, 1152
+# 안전 영역 (모든 기기에서 보이는 중앙 영역) — YouTube 공식 권장
+SAFE_W, SAFE_H = 1235, 338
 
 PROMPT = (
     "Wide cinematic YouTube channel banner background for a Korean history quiz channel. "
@@ -140,28 +140,28 @@ def _compose_banner(raw: Path, out: Path) -> None:
 
     draw = ImageDraw.Draw(img)
 
-    # 폰트 로드
-    font_main, font_tag, font_footer = _find_font([190, 92, 54])
+    # 폰트 로드 (2048×1152 기준 적당한 크기)
+    font_main, font_tag, font_footer = _find_font([160, 76, 44])
 
     # 메인 텍스트 "오당역" — 금색 + 검은 외곽선
-    main_y = cy - 80
+    main_y = cy - 60
     _draw_text_with_outline(
         draw, (cx, main_y), CHANNEL_MAIN, font_main,
-        fill=(255, 215, 80), outline=(0, 0, 0), outline_w=8, anchor="mm",
+        fill=(255, 215, 80), outline=(0, 0, 0), outline_w=7, anchor="mm",
     )
 
     # 태그라인 "오! 당신은 역사퀴즈왕" — 화이트 + 외곽선
-    tag_y = main_y + 150
+    tag_y = main_y + 120
     _draw_text_with_outline(
         draw, (cx, tag_y), CHANNEL_TAG, font_tag,
-        fill=(255, 255, 255), outline=(0, 0, 0), outline_w=5, anchor="mm",
+        fill=(255, 255, 255), outline=(0, 0, 0), outline_w=4, anchor="mm",
     )
 
     # 푸터 "매일 3회 업로드 • 5문제 챌린지" — 연한 금색
-    footer_y = tag_y + 100
+    footer_y = tag_y + 80
     _draw_text_with_outline(
         draw, (cx, footer_y), CHANNEL_FOOTER, font_footer,
-        fill=(255, 230, 150), outline=(0, 0, 0), outline_w=4, anchor="mm",
+        fill=(255, 230, 150), outline=(0, 0, 0), outline_w=3, anchor="mm",
     )
 
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -171,7 +171,7 @@ def _compose_banner(raw: Path, out: Path) -> None:
 
 def main() -> int:
     _generate_dalle(PROMPT, OUT_RAW)
-    _compose_banner(OUT_RAW, OUT_2560)
+    _compose_banner(OUT_RAW, OUT_FINAL)
     print()
     print("YouTube Studio → 설정 → 채널 → 브랜딩 → 배너 이미지 업로드 에 위 파일 사용.")
     return 0
