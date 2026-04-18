@@ -108,17 +108,18 @@ jobs:
           fi
           python factory/run_ci.py $ARGS
 
-      - name: Commit quiz history
+      - name: Commit quiz history + daily bg cache
         if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f quiz_history.json 2>/dev/null || true
+          git add -f assets/daily_bg 2>/dev/null || true
           if ! git diff --cached --quiet; then
-            git commit -m "chore: update quiz history [skip ci]"
+            git commit -m "chore: update history + daily bg cache [skip ci]"
             git push
           else
-            echo "히스토리 변경 없음 — commit 스킵"
+            echo "변경사항 없음 — commit 스킵"
           fi
 
       - name: Upload artifacts
