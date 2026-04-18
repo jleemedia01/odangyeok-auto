@@ -183,5 +183,60 @@
     "answer": "1",
     "title": "고려의 주요 사건은? 🏰",
     "timestamp": "2026-04-18T17:13:10.448245"
+  },
+  {
+    "episode_num": 18,
+    "quiz_idx": 1,
+    "era": "조선",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "세종대왕은 훈민정음을 창제했다.",
+    "answer": "O",
+    "title": "세종대왕의 훈민정음📜",
+    "timestamp": "2026-04-18T17:18:11.729505"
+  },
+  {
+    "episode_num": 18,
+    "quiz_idx": 2,
+    "era": "삼국",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "신라의 왕조 이름은?",
+    "answer": "1",
+    "title": "신라의 왕조 이름은? 👑",
+    "timestamp": "2026-04-18T17:18:11.729511"
+  },
+  {
+    "episode_num": 18,
+    "quiz_idx": 3,
+    "era": "세계사",
+    "difficulty": "고급",
+    "type": "OX",
+    "question": "헨리 8세는 청교도였다.",
+    "answer": "X",
+    "title": "헨리 8세는 청교도였다? 🤔",
+    "timestamp": "2026-04-18T17:18:11.729517"
+  },
+  {
+    "episode_num": 18,
+    "quiz_idx": 4,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "대한민국의 첫 대통령은?",
+    "answer": "1",
+    "title": "대한민국의 첫 대통령은?🇰🇷",
+    "timestamp": "2026-04-18T17:18:11.729519"
+  },
+  {
+    "episode_num": 18,
+    "quiz_idx": 5,
+    "era": "고려",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "강감찬은 고려를 방어했다.",
+    "answer": "O",
+    "title": "고려의 대표적인 인물?🧑‍💼",
+    "timestamp": "2026-04-18T17:18:11.729521"
   }
 ]
