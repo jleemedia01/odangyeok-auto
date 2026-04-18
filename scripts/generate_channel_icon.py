@@ -22,11 +22,18 @@ OUT_PATH  = REPO_ROOT / "assets" / "channel_icon.png"
 OUT_800   = REPO_ROOT / "assets" / "channel_icon_800.png"
 
 PROMPT = (
-    "Professional YouTube profile icon for Korean history quiz channel. "
-    "Minimalist modern design. Gold crown symbol merged with Korean traditional "
-    "taegeuk pattern. Deep navy blue background with gold accents. "
-    "Clean, premium, recognizable at small sizes. Circular composition. "
-    "No text, icon only. Flat design, vibrant colors."
+    "Professional YouTube profile icon for a Korean history quiz channel called 오당역. "
+    "Minimalist modern design combining: "
+    "elegant gold crown symbol; "
+    "Korean traditional taegeuk or cloud pattern subtly incorporated; "
+    "deep navy blue to royal blue gradient background; "
+    "gold and white accents; "
+    "clean, premium, memorable design; "
+    "must be recognizable at small sizes (profile picture); "
+    "perfect circular composition; "
+    "no text inside the icon; "
+    "flat design style with vibrant colors; "
+    "professional quiz show aesthetic."
 )
 
 
