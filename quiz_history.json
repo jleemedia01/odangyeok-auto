@@ -643,5 +643,65 @@
     "confidence": 100,
     "title": "대한제국의 수립 연도는? 🇰🇷",
     "timestamp": "2026-04-18T19:20:43.973640"
+  },
+  {
+    "episode_num": 58,
+    "quiz_idx": 1,
+    "era": "삼국",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "신라의 초대 왕은 누구인가?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "신라의 초대 왕은?👑",
+    "timestamp": "2026-04-18T19:33:16.169879"
+  },
+  {
+    "episode_num": 58,
+    "quiz_idx": 2,
+    "era": "근현대",
+    "difficulty": "고급",
+    "type": "OX",
+    "question": "3.1운동은 민족 자결을 주장했다.",
+    "answer": "O",
+    "confidence": 95,
+    "title": "3.1운동의 의의?🗽",
+    "timestamp": "2026-04-18T19:33:16.169887"
+  },
+  {
+    "episode_num": 58,
+    "quiz_idx": 3,
+    "era": "조선",
+    "difficulty": "고급",
+    "type": "4지선다",
+    "question": "갑신정변의 주도 사상은?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "갑신정변 주도 사상?🧠",
+    "timestamp": "2026-04-18T19:33:16.169894"
+  },
+  {
+    "episode_num": 58,
+    "quiz_idx": 4,
+    "era": "세계사",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "율리우스 카이사르는 로마의 황제이다.",
+    "answer": "X",
+    "confidence": 95,
+    "title": "율리우스 카이사르는 로마의 황제이다?👑",
+    "timestamp": "2026-04-18T19:33:16.169898"
+  },
+  {
+    "episode_num": 58,
+    "quiz_idx": 5,
+    "era": "고려",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "고려 중대업적은?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "고려의 대표적 사건은?⚔️",
+    "timestamp": "2026-04-18T19:33:16.169905"
   }
 ]
