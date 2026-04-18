@@ -29,6 +29,7 @@ from config import (
     SEG_QUESTION,
     SEG_COUNTDOWN,
     QUIZ_DURATION,
+    CTA_START,
     TOTAL_DURATION,
     NUM_QUIZZES,
     QUIZ_TRANSITION_FADE,
