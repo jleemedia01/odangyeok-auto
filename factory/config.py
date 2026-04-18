@@ -32,12 +32,12 @@ CHANNEL_NAME    = "오당역"
 CHANNEL_TAGLINE = "오! 당신은 역사퀴즈왕"
 CHANNEL_SUBTITLE = "하루 한 문제, 역사 퀴즈왕 도전!"
 
-# ── 60s Shorts segment timing (seconds) ───────────────────────────────────────
-SEG_QUESTION    = 5.0    # 퀴즈 제시
+# ── 120s Shorts segment timing (seconds) ──────────────────────────────────────
+SEG_QUESTION    = 10.0   # 퀴즈 제시 (4지선다 보기 낭독 여유)
 SEG_COUNTDOWN   = 5.0    # 카운트다운 (5→4→3→2→1)
 SEG_REVEAL      = 5.0    # 정답 공개
-SEG_EXPLANATION = 45.0   # 해설
-TOTAL_DURATION  = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION  # 60.0
+SEG_EXPLANATION = 100.0  # 해설 (깊은 역사 맥락)
+TOTAL_DURATION  = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION  # 120.0
 
 # ── LLM ────────────────────────────────────────────────────────────────────────
 LLM_MODEL = "gpt-4o-mini"
