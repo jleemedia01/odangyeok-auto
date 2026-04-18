@@ -117,12 +117,25 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f quiz_history.json 2>/dev/null || true
           git add -f assets/daily_bg 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: update history + daily bg cache [skip ci]"
-            git push
-          else
+          if git diff --cached --quiet; then
             echo "변경사항 없음 — commit 스킵"
+            exit 0
           fi
+          git commit -m "chore: update history + daily bg cache [skip ci]"
+          # 동안 로컬에서 다른 commit 이 올라왔을 수 있음 → pull --rebase 후 push
+          # 일시적 충돌은 최대 3회 재시도.
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin main; then
+              if git push; then
+                echo "✓ push 성공 (시도 $attempt)"
+                exit 0
+              fi
+            fi
+            echo "⟳ push 재시도 $attempt/3 (5초 대기)"
+            sleep 5
+          done
+          echo "✗ 3회 시도 후에도 push 실패 — 후속 run 에서 history 합쳐서 올라갈 것"
+          exit 0  # 파이프라인 실패 아닌 경고로만 처리
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
