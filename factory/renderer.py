@@ -1,15 +1,15 @@
 """
-오당역 — Renderer
-60초 쇼츠 영상 합성:
-  - 정적 이미지 배경을 루프
-  - ASS 자막 (질문/카운트다운/정답/해설 오버레이 포함)
-  - TTS 오디오 (60초 4-segment 합성본)
-  - 선택: 카운트다운 구간 (5~10s)에 비프 효과, 정답 구간 시작에 딩동 효과, BGM
-  - 채널 워터마크
+오당역 — Episode Renderer (120s · 5 quizzes)
+- 정적 이미지 배경 루프
+- ASS 자막 (5문제 전체 오버레이)
+- TTS 120s 에피소드 오디오
+- BGM 루프 + -20dB 믹싱 (있을 때)
+- 문제 간 전환: 매 24s 경계에서 짧은 플래시
+- 카운트다운 구간 (5~8s 내, 각 문제별): 매 초 밝기 펄스
+- 정답 공개 시작 시점: 화면 플래시
 """
 
 import random
-import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -28,8 +28,10 @@ from config import (
     ASSETS_DIR,
     SEG_QUESTION,
     SEG_COUNTDOWN,
-    SEG_REVEAL,
+    QUIZ_DURATION,
     TOTAL_DURATION,
+    NUM_QUIZZES,
+    QUIZ_TRANSITION_FADE,
     CHANNEL_NAME,
     FONT_BOLD,
 )
@@ -45,7 +47,7 @@ def _has_ass_filter() -> bool:
 
 def _get_bgm() -> Path | None:
     direct = ASSETS_DIR / "bgm_quiz.mp3"
-    if direct.exists():
+    if direct.exists() and direct.stat().st_size > 10_000:
         return direct
     music_dir = ASSETS_DIR / "music"
     for ext in ("*.mp3", "*.m4a", "*.wav"):
@@ -56,13 +58,12 @@ def _get_bgm() -> Path | None:
 
 
 def _font_path() -> str:
-    candidates = [
+    for p in (
         FONT_BOLD,
         "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
         "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
         "/System/Library/Fonts/AppleSDGothicNeo.ttc",
-    ]
-    for p in candidates:
+    ):
         if p and Path(p).exists():
             return p
     return ""
@@ -77,10 +78,10 @@ def render_video(
     if not shutil.which("ffmpeg"):
         raise RuntimeError("ffmpeg 미설치")
 
-    font_file = _font_path()
-    fontfile_opt = f":fontfile={font_file}" if font_file else ""
-
-    bgm = _get_bgm()
+    font_file   = _font_path()
+    fontopt     = f":fontfile={font_file}" if font_file else ""
+    bgm_path    = _get_bgm()
+    is_image_bg = bg_path.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")
 
     # ── Subtitle filter ────────────────────────────────────────────────────
     if _has_ass_filter():
@@ -88,36 +89,47 @@ def render_video(
         subs_filter = f"ass='{subs_str}',"
     else:
         subs_filter = ""
-        print("  [렌더] libass 필터 없음 — 자막 미적용 경고")
+        print("  [렌더] libass 미존재 — 자막 미적용 경고")
 
-    # ── 시대 배지 + 채널 워터마크 ──────────────────────────────────────────
-    watermark = (
-        f"drawtext=text='{CHANNEL_NAME}'"
-        f"{fontfile_opt}"
-        f":fontsize=38:fontcolor=white@0.85"
-        f":x=30:y=30"
-        f":box=1:boxcolor=black@0.55:boxborderw=12,"
-    )
+    # ── 시각 이펙트 체인 ────────────────────────────────────────────────────
+    fx_parts: list[str] = []
 
-    # ── 카운트다운 구간 밝기 펄스 (시각 임팩트) ────────────────────────────
-    # 5~10s 에서 매 초 밝기 살짝 증가
-    pulses = []
-    for i in range(5):
-        st = SEG_QUESTION + i
-        en = st + 0.15
-        pulses.append(
-            f"eq=brightness=0.15:enable='between(t,{st:.2f},{en:.2f})'"
+    for qi in range(NUM_QUIZZES):
+        base = qi * QUIZ_DURATION
+
+        # 문제 간 전환 — 시작 시점 화이트 플래시 (첫 문제 제외)
+        if qi > 0:
+            t0 = base - QUIZ_TRANSITION_FADE / 2
+            t1 = base + QUIZ_TRANSITION_FADE / 2
+            fx_parts.append(
+                f"eq=brightness=0.35:enable='between(t,{t0:.3f},{t1:.3f})'"
+            )
+
+        # 카운트다운 3초 동안 매 초 펄스 (3, 2, 1)
+        for i in range(3):
+            st = base + SEG_QUESTION + i
+            en = st + 0.12
+            fx_parts.append(
+                f"eq=brightness=0.18:enable='between(t,{st:.2f},{en:.2f})'"
+            )
+
+        # 정답 공개 플래시
+        flash_st = base + SEG_QUESTION + SEG_COUNTDOWN
+        flash_en = flash_st + 0.25
+        fx_parts.append(
+            f"eq=brightness=0.40:enable='between(t,{flash_st:.2f},{flash_en:.2f})'"
         )
-    pulse_filter = ",".join(pulses) + "," if pulses else ""
 
-    # 정답 공개 시작 (10s) 화면 플래시
-    flash_start = SEG_QUESTION + SEG_COUNTDOWN
-    flash_end   = flash_start + 0.3
-    flash_filter = (
-        f"eq=brightness=0.30:enable='between(t,{flash_start:.2f},{flash_end:.2f})',"
+    fx_chain = ",".join(fx_parts) + "," if fx_parts else ""
+
+    # ── 채널 워터마크 ──────────────────────────────────────────────────────
+    watermark = (
+        f"drawtext=text='{CHANNEL_NAME} 5문제 챌린지'"
+        f"{fontopt}"
+        f":fontsize=36:fontcolor=white@0.82"
+        f":x=30:y=h-80"
+        f":box=1:boxcolor=black@0.55:boxborderw=10,"
     )
-
-    is_image_bg = bg_path.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")
 
     video_chain = (
         f"[0:v]"
@@ -125,8 +137,7 @@ def render_video(
         f"scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
         f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},setsar=1,"
         f"fps={VIDEO_FPS},format=yuv420p,"
-        f"{pulse_filter}"
-        f"{flash_filter}"
+        f"{fx_chain}"
         f"{subs_filter}"
         f"{watermark}"
         f"fade=t=in:st=0:d=0.4,"
@@ -134,11 +145,9 @@ def render_video(
         f"[vfinal]"
     )
 
-    tts_chain = (
-        f"[1:a]volume={TTS_VOLUME}[tts]"
-    )
+    tts_chain = f"[1:a]volume={TTS_VOLUME}[tts]"
 
-    if bgm:
+    if bgm_path:
         bgm_chain = (
             f"[2:a]volume={BGM_VOLUME},"
             f"aloop=loop=-1:size=2147483647,"
@@ -148,8 +157,10 @@ def render_video(
         )
         mix = "[tts][bgm]amix=inputs=2:duration=first:normalize=0[afinal]"
         filter_complex = f"{video_chain};{tts_chain};{bgm_chain};{mix}"
+        audio_map = "[afinal]"
     else:
         filter_complex = f"{video_chain};{tts_chain}"
+        audio_map = "[tts]"
 
     cmd = ["ffmpeg", "-y"]
     if is_image_bg:
@@ -157,13 +168,13 @@ def render_video(
     else:
         cmd += ["-stream_loop", "-1", "-i", str(bg_path)]
     cmd += ["-i", str(audio_path)]
-    if bgm:
-        cmd += ["-i", str(bgm)]
+    if bgm_path:
+        cmd += ["-i", str(bgm_path)]
 
     cmd += [
         "-filter_complex", filter_complex,
         "-map", "[vfinal]",
-        "-map", "[afinal]" if bgm else "[tts]",
+        "-map", audio_map,
         "-c:v", VIDEO_CODEC,
         "-preset", VIDEO_PRESET,
         "-crf", str(VIDEO_CRF),
@@ -176,10 +187,12 @@ def render_video(
     ]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    print(f"  [렌더] FFmpeg 실행 ({TOTAL_DURATION:.0f}초)...")
-    r = subprocess.run(cmd, capture_output=True, timeout=600)
+    bgm_msg = f" + BGM({bgm_path.name})" if bgm_path else " (BGM 없음)"
+    print(f"  [렌더] FFmpeg — {TOTAL_DURATION:.0f}s · {NUM_QUIZZES}문제{bgm_msg}")
+
+    r = subprocess.run(cmd, capture_output=True, timeout=900)
     if r.returncode != 0:
-        err = r.stderr.decode("utf-8", errors="replace")[-1200:]
+        err = r.stderr.decode("utf-8", errors="replace")[-1500:]
         raise RuntimeError(f"FFmpeg 실패:\n{err}")
 
     size_mb = output_path.stat().st_size / (1024 * 1024)

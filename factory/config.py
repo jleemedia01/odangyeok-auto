@@ -32,12 +32,17 @@ CHANNEL_NAME    = "오당역"
 CHANNEL_TAGLINE = "오! 당신은 역사퀴즈왕"
 CHANNEL_SUBTITLE = "하루 한 문제, 역사 퀴즈왕 도전!"
 
-# ── 120s Shorts segment timing (seconds) ──────────────────────────────────────
-SEG_QUESTION    = 10.0   # 퀴즈 제시 (4지선다 보기 낭독 여유)
-SEG_COUNTDOWN   = 5.0    # 카운트다운 (5→4→3→2→1)
-SEG_REVEAL      = 5.0    # 정답 공개
-SEG_EXPLANATION = 100.0  # 해설 (깊은 역사 맥락)
-TOTAL_DURATION  = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION  # 120.0
+# ── Episode = 5 quizzes × 24s = 120s ──────────────────────────────────────────
+NUM_QUIZZES     = 5
+SEG_QUESTION    = 5.0    # 문제 제시
+SEG_COUNTDOWN   = 3.0    # 3→2→1 (비프음)
+SEG_REVEAL      = 3.0    # 정답 공개
+SEG_EXPLANATION = 13.0   # 해설
+QUIZ_DURATION   = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION   # 24.0
+TOTAL_DURATION  = NUM_QUIZZES * QUIZ_DURATION                                    # 120.0
+
+# ── Transition between quizzes ────────────────────────────────────────────────
+QUIZ_TRANSITION_FADE = 0.35   # 문제 경계에서 짧은 플래시/페이드 (seconds)
 
 # ── LLM ────────────────────────────────────────────────────────────────────────
 LLM_MODEL = "gpt-4o-mini"
@@ -59,13 +64,13 @@ VIDEO_PRESET  = "ultrafast"
 VIDEO_CRF     = 30
 AUDIO_CODEC   = "aac"
 AUDIO_BITRATE = "320k"
-BGM_VOLUME    = 0.10
+BGM_VOLUME    = 0.10     # ≈ -20dB — TTS 간섭 방지
 TTS_VOLUME    = 1.0
 
 # ── Subtitle styling ───────────────────────────────────────────────────────────
 SUBTITLE_FONT           = "NanumGothicBold"
 SUBTITLE_FONT_SIZE      = 62
-SUBTITLE_OUTLINE        = 24
+SUBTITLE_OUTLINE        = 8     # 얇은 외곽선 (가독성 유지하면서 깔끔하게)
 SUBTITLE_SHADOW         = 0
 SUBTITLE_MARGIN_V       = 600
 

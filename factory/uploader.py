@@ -18,7 +18,7 @@ from google.auth.transport.requests import Request
 from config import YT_TOKEN_FILE, YT_SCOPES, YT_CATEGORY_ID, CHANNEL_NAME, CHANNEL_TAGLINE
 
 CHUNK_SIZE = 1024 * 1024 * 8
-FIRST_COMMENT = "정답 맞추셨나요? 댓글로 알려주세요 👇 매일 새 문제 올라옵니다!"
+FIRST_COMMENT = "5문제 중 몇 개 맞히셨나요? 댓글로 점수 남겨주세요 👇 매일 새 에피소드 올라옵니다!"
 
 
 def _creds_from_data(data: dict) -> Credentials:
@@ -77,31 +77,44 @@ def get_youtube_service():
     return build("youtube", "v3", credentials=creds)
 
 
-def build_metadata(quiz: dict, publish_at: str | None = None) -> dict:
-    title   = quiz.get("title", "역사 퀴즈")
-    era     = quiz.get("era", "")
-    diff    = quiz.get("difficulty", "")
-    qtype   = quiz.get("type", "")
+def build_episode_metadata(
+    quizzes: list[dict],
+    episode_meta: dict,
+    publish_at: str | None = None,
+) -> dict:
+    title = episode_meta.get("title", "역사퀴즈 5문제 챌린지")
+    eras  = episode_meta.get("eras", [])
+    diffs = episode_meta.get("difficulties", [])
 
+    # 각 퀴즈 요약 (설명 본문에 목차처럼 삽입)
+    quiz_list = []
+    for i, q in enumerate(quizzes, 1):
+        quiz_list.append(
+            f"{i}. [{q.get('era','')}/{q.get('type','')}] {q.get('question','')}"
+        )
+    quiz_lines = "\n".join(quiz_list)
+
+    hashtag = " ".join(f"#{e}" for e in eras if e)
     description = (
         f"{title}\n\n"
-        f"#역사퀴즈 #{era} #{CHANNEL_NAME} #한국사 #{qtype}\n\n"
+        f"📚 오늘의 5문제\n"
+        f"{quiz_lines}\n\n"
         f"📌 {CHANNEL_TAGLINE}\n"
-        f"하루 한 문제, 역사 지식 쑥쑥! 맞추면 당신도 역사퀴즈왕!\n\n"
-        f"🎯 난이도: {diff}   |   시대: {era}   |   유형: {qtype}\n\n"
-        f"🔔 구독 + 알림 설정하고 매일 새 문제 풀어보세요.\n"
-        f"👇 정답 & 해설은 영상 안에서 공개됩니다!\n\n"
+        f"5문제 모두 맞히면 당신도 역사퀴즈왕! 몇 문제 맞히셨나요?\n\n"
+        f"🎯 시대: {' · '.join(eras)}   |   난이도: {' · '.join(diffs)}\n\n"
+        f"🔔 구독 + 알림 설정하고 매일 새 에피소드 풀어보세요.\n"
+        f"👇 댓글로 점수 남겨주세요!\n\n"
+        f"#역사퀴즈 #{CHANNEL_NAME} #한국사퀴즈 #퀴즈챌린지 {hashtag}\n\n"
         f"⚠️ 모든 문제는 역사 사실에 기반한 교육 목적의 콘텐츠입니다."
     )
 
-    tags = (quiz.get("tags", []) or []) + [
-        "역사퀴즈", "한국사퀴즈", CHANNEL_NAME, "쇼츠", "역사쇼츠",
-        era, diff, qtype,
-    ]
+    tags = (episode_meta.get("tags", []) or []) + [
+        "역사퀴즈", "한국사퀴즈", CHANNEL_NAME, "역사쇼츠", "퀴즈챌린지",
+    ] + eras + diffs
 
     meta = {
         "title":       title,
-        "description": description,
+        "description": description[:4900],
         "tags":        list(dict.fromkeys([t for t in tags if t]))[:30],
         "categoryId":  YT_CATEGORY_ID,
         "privacyStatus": "private",
@@ -109,6 +122,20 @@ def build_metadata(quiz: dict, publish_at: str | None = None) -> dict:
     if publish_at:
         meta["publishAt"] = publish_at
     return meta
+
+
+# 하위 호환 (단일 퀴즈)
+def build_metadata(quiz: dict, publish_at: str | None = None) -> dict:
+    return build_episode_metadata(
+        [quiz],
+        {
+            "title": quiz.get("title", "역사 퀴즈"),
+            "eras":  [quiz.get("era", "")],
+            "difficulties": [quiz.get("difficulty", "")],
+            "tags": quiz.get("tags", []),
+        },
+        publish_at=publish_at,
+    )
 
 
 def upload_video(service, video_path: Path, thumbnail_path: Path | None, metadata: dict) -> str | None:
