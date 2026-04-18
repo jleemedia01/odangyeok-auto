@@ -160,11 +160,11 @@ def _countdown_beeps(out_path: Path) -> None:
 
 # ── 문제 하나의 24s 오디오 ───────────────────────────────────────────────────
 def _build_quiz_audio(quiz: dict, idx: int, job_dir: Path) -> Path:
-    """한 퀴즈 = Q(5s) + CD(3s) + R(3s) + E(13s) = 24s."""
+    """한 퀴즈 = Q(5s) + CD(3s) + R(3s) + E(13s) = 24s.
+
+    TTS 는 질문 본문만 읽음 (4지선다 보기는 자막으로만 표시 — 5초 안에 다 읽히게).
+    """
     q_text = _clean(quiz["question"])
-    if quiz["type"] == "4지선다":
-        opts = quiz.get("options", [])
-        q_text = q_text + " " + " ".join(f"{i+1}번, {o}." for i, o in enumerate(opts))
 
     if quiz["type"] == "OX":
         reveal_text = f"정답은 {quiz['answer']}!"

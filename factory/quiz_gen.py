@@ -36,9 +36,13 @@ from config import (
 
 HISTORY_FILE = REPO_ROOT / "quiz_history.json"
 
-# 13s TTS 낭독 — 공백 포함 80~150자
-EXPLANATION_MIN = 80
-EXPLANATION_MAX = 150
+# 13s TTS 낭독 — 간결화 (공백 포함 50~100자)
+EXPLANATION_MIN = 50
+EXPLANATION_MAX = 100
+
+# 질문 길이 하드 리밋 — 5s 안에 읽혀야 함 (TTS speed 1.1 기준)
+QUESTION_MAX_OX  = 22
+QUESTION_MAX_MC  = 24
 
 
 def safe_print(*args, **kwargs):
@@ -132,6 +136,16 @@ def _validate_quiz_schema(data: dict, quiz_type: str) -> None:
     if len(exp) < EXPLANATION_MIN:
         raise ValueError(f"explanation 너무 짧음 ({len(exp)}자, 최소 {EXPLANATION_MIN}자)")
 
+    # 해설이 "정답은" 으로 시작하면 정답 음성과 중복 → 차단
+    if exp.lstrip().startswith("정답은") or exp.lstrip().startswith("답은"):
+        raise ValueError("explanation 이 '정답은' 으로 시작 — 해설은 근거부터 시작해야 함")
+
+    # 질문 길이 하드 리밋 — TTS 5s 안에 읽히도록
+    q = data.get("question", "")
+    limit = QUESTION_MAX_OX if quiz_type == "OX" else QUESTION_MAX_MC
+    if len(q) > limit:
+        raise ValueError(f"question 너무 김 ({len(q)}자, {limit}자 이내)")
+
 
 # ── 프롬프트 빌더 ─────────────────────────────────────────────────────────────
 def _build_prompt(
@@ -156,25 +170,26 @@ def _build_prompt(
     if quiz_type == "OX":
         schema_body = (
             '  "type": "OX",\n'
-            '  "question": "역사 사실 한 문장 진술 (20자 이내, O/X로 답할 수 있어야 함)",\n'
+            f'  "question": "역사 사실 한 문장 진술 ({QUESTION_MAX_OX}자 이내, O/X로 답할 수 있어야 함)",\n'
             '  "answer": "O 또는 X",\n'
         )
         type_hint = (
             "OX 퀴즈 규칙:\n"
             "- question 은 '~은 ~이다', '~했다' 같은 진술문\n"
             "- 역사적 사실 기반, 명확한 O/X 판정 가능\n"
-            "- 20자 이내로 짧고 읽기 쉽게\n"
+            f"- 반드시 {QUESTION_MAX_OX}자 이내 (TTS 5초 안에 읽혀야 함)\n"
         )
     else:
         schema_body = (
             '  "type": "4지선다",\n'
-            '  "question": "질문 한 줄 (25자 이내)",\n'
+            f'  "question": "질문 한 줄 ({QUESTION_MAX_MC}자 이내)",\n'
             '  "options": ["1번 보기", "2번 보기", "3번 보기", "4번 보기"],\n'
             '  "answer": "1|2|3|4 중 정답 번호",\n'
         )
         type_hint = (
             "4지선다 규칙:\n"
-            "- question 은 짧고 명확한 한 줄 질문 (25자 이내)\n"
+            f"- question 은 짧고 명확한 한 줄 질문 ({QUESTION_MAX_MC}자 이내)\n"
+            "- TTS 는 질문 본문만 읽고 보기는 자막으로만 표시됨 — 질문 자체가 짧아야 함\n"
             "- 보기 4개는 모두 같은 범주(사람/연도/장소/사건)로 통일\n"
             "- 보기 하나당 12자 이내\n"
             "- 오답은 그럴듯하되 명확히 틀린 것\n"
@@ -202,8 +217,9 @@ def _build_prompt(
 
 [해설(explanation) 작성 규칙 — 매우 중요]
 - 13초 TTS 낭독용 — 한글 {EXPLANATION_MIN}~{EXPLANATION_MAX}자 분량(공백 포함)
-- 구조: (1) "정답은 ...입니다." (2) 한 줄 근거 (3) 핵심 맥락 1~2줄
-- 첫 문장 반드시 "정답은 X입니다." 또는 "정답은 N번, ...입니다."
+- 정답은 영상에서 남성 음성이 별도로 공개함 — 해설에서 "정답은 ..." 문구는 절대 쓰지 말 것
+- 첫 문장은 바로 근거·맥락부터 시작 (예: "삼국통일을 이룬 인물이 김유신이기 때문인데요, ...")
+- 구조: 근거 한 줄 → 핵심 맥락 한 줄 → (선택) 흥미 포인트 한 줄
 - 간결·명료·친근한 톤. 초등 고학년도 이해 가능
 - 구체적 연도·인물 1개 이상 포함
 - 지시문·마크다운·JSON 키 금지 — 바로 낭독 텍스트
@@ -284,8 +300,11 @@ def _refit_explanation(data: dict, client: OpenAI) -> str:
     direction = "더 간결하게 줄여" if len(current) > EXPLANATION_MAX else "더 풍부하게 늘려"
     prompt = (
         f"다음 역사 퀴즈 해설을 {direction} "
-        f"한글 {EXPLANATION_MIN}~{EXPLANATION_MAX}자(공백 포함)로 다시 작성하세요. "
-        "첫 문장 '정답은 ...' 유지. 구체적 연도/인물 포함. 본문만 출력.\n\n"
+        f"한글 {EXPLANATION_MIN}~{EXPLANATION_MAX}자(공백 포함)로 다시 작성하세요.\n"
+        "반드시 지킬 것:\n"
+        "- 첫 문장을 '정답은', '답은' 같은 표현으로 시작하지 말 것 — 바로 근거·이유부터\n"
+        "- 구체적 연도/인물 포함\n"
+        "- 본문만 출력 (설명·인사말·JSON 키 금지)\n\n"
         f"[질문] {data.get('question','')}\n"
         f"[정답] {data.get('answer','')}\n"
         f"[현재 {len(current)}자]\n{current}"

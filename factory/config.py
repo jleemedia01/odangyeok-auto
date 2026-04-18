@@ -52,8 +52,8 @@ TTS_MODEL         = "tts-1"
 TTS_VOICE_QUESTION = "nova"     # 또렷한 여성 — 문제 제시
 TTS_VOICE_REVEAL   = "onyx"     # 무게감 있는 남성 — 정답 공개
 TTS_VOICE_EXPLAIN  = "shimmer"  # 친근한 여성 — 해설
-TTS_SPEED_QUESTION = 1.0
-TTS_SPEED_EXPLAIN  = 1.05       # 45초 안에 해설 다 말하게
+TTS_SPEED_QUESTION = 1.10       # 5초 안에 질문 다 읽히게 조금 빠르게
+TTS_SPEED_EXPLAIN  = 1.05
 
 # ── Video specs ────────────────────────────────────────────────────────────────
 VIDEO_WIDTH   = 1080
