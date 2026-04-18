@@ -142,13 +142,16 @@ def render_video(
     )
 
     # ── CTA 구간 구독 박스 (화면 하단 중앙, 펄스 애니메이션) ────────────────
+    # VIDEO_HEIGHT=1920 기준 숫자 리터럴 사용 (drawtext 는 ih 변수 미지원)
+    _box_y  = int(VIDEO_HEIGHT * 0.78)            # 1497
+    _text_y = _box_y + 40                         # 1537
     subscribe_overlay = (
-        f"drawbox=x=(iw-860)/2:y=ih*0.78:w=860:h=160:color=red@0.92:t=fill"
+        f"drawbox=x=(iw-860)/2:y={_box_y}:w=860:h=160:color=red@0.92:t=fill"
         f":enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})',"
         f"drawtext=text='👉 구독하고 역사퀴즈왕 되기'"
         f"{fontopt}"
         f":fontsize=72:fontcolor=white"
-        f":x=(w-text_w)/2:y=ih*0.78+40"
+        f":x=(w-text_w)/2:y={_text_y}"
         f":enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})',"
     )
 
