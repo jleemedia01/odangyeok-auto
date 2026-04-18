@@ -583,5 +583,65 @@
     "confidence": 100,
     "title": "문명 발상지와 농업🌾",
     "timestamp": "2026-04-18T19:12:41.938106"
+  },
+  {
+    "episode_num": 53,
+    "quiz_idx": 1,
+    "era": "조선",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "과전법을 시행한 왕은?",
+    "answer": "2",
+    "confidence": 95,
+    "title": "조선의 개혁 정책은? ⚖️",
+    "timestamp": "2026-04-18T19:20:43.973623"
+  },
+  {
+    "episode_num": 53,
+    "quiz_idx": 2,
+    "era": "삼국",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "가야는 신라의 부속국이었다.",
+    "answer": "X",
+    "confidence": 95,
+    "title": "가야는 신라의 부속국이었다? 🤔",
+    "timestamp": "2026-04-18T19:20:43.973630"
+  },
+  {
+    "episode_num": 53,
+    "quiz_idx": 3,
+    "era": "세계사",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "산업혁명이 시작된 연도는?",
+    "answer": "1",
+    "confidence": 98,
+    "title": "산업혁명 시작은?🔧",
+    "timestamp": "2026-04-18T19:20:43.973637"
+  },
+  {
+    "episode_num": 53,
+    "quiz_idx": 4,
+    "era": "고려",
+    "difficulty": "고급",
+    "type": "OX",
+    "question": "고려는 신분제가 존재했다.",
+    "answer": "O",
+    "confidence": 95,
+    "title": "고려의 사회구조? 🏛️",
+    "timestamp": "2026-04-18T19:20:43.973639"
+  },
+  {
+    "episode_num": 53,
+    "quiz_idx": 5,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "대한제국은 몇 년에 수립?",
+    "answer": "1",
+    "confidence": 100,
+    "title": "대한제국의 수립 연도는? 🇰🇷",
+    "timestamp": "2026-04-18T19:20:43.973640"
   }
 ]
