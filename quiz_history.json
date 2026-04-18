@@ -883,5 +883,65 @@
     "confidence": 95,
     "title": "고려를 뒤흔든 사건! ⚔️",
     "timestamp": "2026-04-18T20:09:56.861735"
+  },
+  {
+    "episode_num": 78,
+    "quiz_idx": 1,
+    "era": "조선",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "임진왜란 발발 연도는?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "조선의 왕과 사건🕌",
+    "timestamp": "2026-04-18T22:28:52.163347"
+  },
+  {
+    "episode_num": 78,
+    "quiz_idx": 2,
+    "era": "삼국",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "고구려는 불교를 국교로 삼았다.",
+    "answer": "X",
+    "confidence": 95,
+    "title": "고구려의 근본 정신💪",
+    "timestamp": "2026-04-18T22:28:52.163355"
+  },
+  {
+    "episode_num": 78,
+    "quiz_idx": 3,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "대한민국의 첫 정부는?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "대한민국의 첫 정부는? 🇰🇷",
+    "timestamp": "2026-04-18T22:28:52.163362"
+  },
+  {
+    "episode_num": 78,
+    "quiz_idx": 4,
+    "era": "고려",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "광종은 노비안검법을 시행했다.",
+    "answer": "O",
+    "confidence": 95,
+    "title": "광종의 개혁🛡️",
+    "timestamp": "2026-04-18T22:28:52.163365"
+  },
+  {
+    "episode_num": 78,
+    "quiz_idx": 5,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "마르틴 루터의 주장 연도는?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "루터, 종교개혁의 시작! ✝️",
+    "timestamp": "2026-04-18T22:28:52.163366"
   }
 ]
