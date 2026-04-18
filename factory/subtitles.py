@@ -20,7 +20,14 @@ from config import (
     QUIZ_DURATION,
     CTA_START,
     TOTAL_DURATION,
+    VIDEO_WIDTH,
 )
+
+# ── 문제 번호 배지 위치 (사용자 요청: 우측 상단 절대 좌표) ────────────────────
+# \an9 (top-right anchor) 기준: (NUM_BADGE_X, NUM_BADGE_Y) 가 텍스트의 우측 상단 점
+NUM_BADGE_X = VIDEO_WIDTH - 50    # 우측에서 50px (텍스트 우측 끝)
+NUM_BADGE_Y = 100                  # 상단에서 100px
+NUM_BADGE_FONTSIZE = 60
 
 _MAX_CHARS_PER_LINE = 11
 
@@ -107,12 +114,12 @@ def _ass_header() -> str:
         f"-1,0,0,0,100,100,0,0,1,{SUBTITLE_OUTLINE},{SUBTITLE_SHADOW},"
         f"2,60,60,260,1\n"
         # 문제 번호 배지 — 우측 상단 반투명 검은 박스
-        # Alignment 9 (top-right), BorderStyle 3 (opaque box), BackColour 반투명 검정
-        # MarginR=50 MarginV=50 으로 채널 헤더와 겹치지 않게 오른쪽 여백 확보
-        f"Style: NUM,{SUBTITLE_FONT},42,"
+        # Alignment/Margin 은 inline \\pos 가 override 하므로 포맷만 유지.
+        # BorderStyle 3 + BackColour 반투명 검정 (&H90000000 = alpha 90, 검정 배경)
+        f"Style: NUM,{SUBTITLE_FONT},{NUM_BADGE_FONTSIZE},"
         f"&H00FFFFFF,&H000000FF,&H00000000,&H90000000,"
-        f"-1,0,0,0,100,100,0,0,3,14,0,"
-        f"9,50,50,50,1\n"
+        f"-1,0,0,0,100,100,0,0,3,10,0,"
+        f"9,0,0,0,1\n"
         # CTA 타이틀 — 큰 노란색 (상단)
         f"Style: CTA_H,{SUBTITLE_FONT},120,"
         f"&H0000E5FF,&H000000FF,&H00000000,&H00000000,"
@@ -144,8 +151,12 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
     base = idx * QUIZ_DURATION
     out = ""
 
-    # ── 문제 번호 배지 (전체 24s 고정) ─────────────────────────────────────
-    out += _dlg("NUM", base, base + QUIZ_DURATION, f"문제 {idx+1}/{total}")
+    # ── 문제 번호 배지 (전체 24s 고정, 우측 상단 절대 위치) ────────────────
+    # \an9 = top-right anchor, \pos = 절대 좌표 override (Style 의 Alignment·Margin 무시)
+    out += (
+        f"Dialogue: 0,{_fmt(base)},{_fmt(base + QUIZ_DURATION)},NUM,,0,0,0,,"
+        f"{{\\an9\\pos({NUM_BADGE_X},{NUM_BADGE_Y})}}문제 {idx+1}/{total}\n"
+    )
 
     # ── 질문 구간 (Q_BIG + 4지선다 보기) ────────────────────────────────────
     q_end = base + SEG_QUESTION
