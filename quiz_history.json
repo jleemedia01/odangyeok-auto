@@ -523,5 +523,65 @@
     "confidence": 100,
     "title": "고려의 국호는 고려이다! 🇰🇷",
     "timestamp": "2026-04-18T19:05:34.266456"
+  },
+  {
+    "episode_num": 48,
+    "quiz_idx": 1,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "안중근은 이토 히로부미를 저격했다.",
+    "answer": "O",
+    "confidence": 100,
+    "title": "대한민국 독립운동🗽",
+    "timestamp": "2026-04-18T19:12:41.938088"
+  },
+  {
+    "episode_num": 48,
+    "quiz_idx": 2,
+    "era": "고려",
+    "difficulty": "고급",
+    "type": "4지선다",
+    "question": "고려의 남북국 대립 사건?",
+    "answer": "3",
+    "confidence": 95,
+    "title": "고려의 남북국 대립은? ⚔️",
+    "timestamp": "2026-04-18T19:12:41.938095"
+  },
+  {
+    "episode_num": 48,
+    "quiz_idx": 3,
+    "era": "삼국",
+    "difficulty": "고급",
+    "type": "OX",
+    "question": "백제와 신라의 전쟁이 원인이다.",
+    "answer": "O",
+    "confidence": 95,
+    "title": "삼국시대 전쟁의 배경⚔️",
+    "timestamp": "2026-04-18T19:12:41.938102"
+  },
+  {
+    "episode_num": 48,
+    "quiz_idx": 4,
+    "era": "조선",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "조선 성리학을 확립한 인물은?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "조선을 지배한 인물은?👑",
+    "timestamp": "2026-04-18T19:12:41.938104"
+  },
+  {
+    "episode_num": 48,
+    "quiz_idx": 5,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "메소포타미아는 농업 발상지다.",
+    "answer": "O",
+    "confidence": 100,
+    "title": "문명 발상지와 농업🌾",
+    "timestamp": "2026-04-18T19:12:41.938106"
   }
 ]
