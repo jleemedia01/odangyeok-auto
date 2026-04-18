@@ -28,30 +28,36 @@ SAFE_W, SAFE_H = 1235, 338
 
 PROMPT = (
     "Wide cinematic YouTube channel banner background for a Korean history quiz channel. "
-    "Landscape format. ABSOLUTELY NO TEXT, NO LETTERS, NO HANGUL, NO CHARACTERS of any kind. "
+    "Landscape format. "
+    "ZERO TEXT, ZERO LETTERS, ZERO HANGUL, ZERO CHARACTERS, ZERO GLYPHS, "
+    "ZERO SYMBOLS THAT RESEMBLE WRITING. Completely wordless silent decoration only. "
     "\n\n"
-    "COMPOSITION: Center area mostly clean and empty (for text to be added later). "
-    "Decorative elements are arranged on the LEFT and RIGHT thirds of the image only — "
-    "the middle 40% horizontal strip must be a clean dark gradient with minimal detail. "
+    "COMPOSITION RULE — VERY IMPORTANT: "
+    "The CENTER 60 PERCENT of the image is a CLEAN SMOOTH DARK GRADIENT with ABSOLUTELY NOTHING in it — "
+    "no crowns, no books, no ornaments, no shapes, no sparkles, no details of any kind. "
+    "Just smooth empty gradient for text overlay to be added later. "
+    "All decorative elements are pushed to the FAR LEFT 20 PERCENT and FAR RIGHT 20 PERCENT edges only. "
     "\n\n"
-    "BACKGROUND: Deep royal blue to navy radial gradient, rich and premium, "
-    "with subtle warm glow in the center. "
+    "BACKGROUND: Deep navy blue to royal blue smooth radial gradient, rich premium. "
+    "Subtle warm center glow. "
     "\n\n"
-    "DECORATIVE ELEMENTS (on left and right sides only): "
-    "floating golden crowns with red jewels; "
-    "ancient open scroll icons; golden question-mark symbols with sparkles; "
-    "abstract stack-of-books silhouettes with gold accents; "
-    "gold stars and soft sparkle particles; "
-    "subtle Korean royal ornament patterns in gold line art. "
+    "LEFT EDGE DECORATIONS (only on far left 20%): "
+    "a single stylized gold crown silhouette; stack-of-books silhouettes; "
+    "gold sparkle particles; abstract gold ornament line-art. "
     "\n\n"
-    "STYLE: Modern flat vector illustration, clean bold shapes, vibrant royal colors, "
-    "premium TV game-show opening aesthetic meets educational channel. "
-    "Palette: deep navy/royal blue background, warm gold accents, crimson red highlights, "
-    "bright white sparkles. High contrast, crisp edges. "
+    "RIGHT EDGE DECORATIONS (only on far right 20%): "
+    "open scroll silhouette; another gold crown variant; gold stars and sparkles; "
+    "abstract gold ornament line-art. "
+    "All decorations are PURE VISUAL SHAPES, with NO TEXT OR MARKINGS on any object. "
     "\n\n"
-    "STRICTLY FORBIDDEN: text / letters / hangul / alphabet / numbers, "
-    "human figures, religious symbols (no yin-yang, no lotus, no halos, no mandala), "
-    "realistic photography, dull colors."
+    "STYLE: Modern flat vector illustration, clean bold shapes, premium TV game-show aesthetic. "
+    "Palette: deep navy/royal blue + warm gold + crimson red accents + white sparkles. "
+    "High contrast, crisp edges. "
+    "\n\n"
+    "STRICTLY FORBIDDEN: any letters / numbers / hangul / alphabet / text / writing / "
+    "symbols that look like letters, question mark characters (use abstract shapes instead), "
+    "human figures, religious symbols (yin-yang, lotus, halo, mandala), "
+    "realistic photography, dull colors, details in the center of the image."
 )
 
 CHANNEL_MAIN    = "오당역"
@@ -128,15 +134,23 @@ def _compose_banner(raw: Path, out: Path) -> None:
     # 업스케일 (1792×1024 → 2560×1440, 동일 16:9 → Lanczos로 부드럽게)
     img = img.resize((BANNER_W, BANNER_H), Image.LANCZOS)
 
-    # 중앙 safe area 가독성용 살짝 어두운 오버레이
+    # 중앙 safe area 가독성용 어두운 오버레이 + 금색 테두리 박스
+    cx, cy = BANNER_W // 2, BANNER_H // 2
+    BOX_W, BOX_H = 1400, 560                         # 텍스트 콘텐츠 박스
+    bx0, by0 = cx - BOX_W // 2, cy - BOX_H // 2
+    bx1, by1 = cx + BOX_W // 2, cy + BOX_H // 2
+
     overlay = Image.new("RGBA", (BANNER_W, BANNER_H), (0, 0, 0, 0))
     od = ImageDraw.Draw(overlay)
-    cx, cy = BANNER_W // 2, BANNER_H // 2
-    sx0, sy0 = cx - SAFE_W // 2, cy - SAFE_H // 2
-    sx1, sy1 = cx + SAFE_W // 2, cy + SAFE_H // 2
-    # 부드러운 가운데 암막 (radial feel — rounded rectangle with alpha)
-    od.rounded_rectangle([sx0 - 40, sy0 - 30, sx1 + 40, sy1 + 30], radius=30, fill=(0, 0, 10, 95))
+    # 짙은 반투명 박스 (alpha 180 — 거의 불투명)
+    od.rounded_rectangle([bx0, by0, bx1, by1], radius=36, fill=(5, 10, 30, 180))
     img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+
+    # 금색 테두리 따로 (불투명하게)
+    bdraw = ImageDraw.Draw(img)
+    bdraw.rounded_rectangle(
+        [bx0, by0, bx1, by1], radius=36, outline=(212, 175, 55), width=6,
+    )
 
     draw = ImageDraw.Draw(img)
 
