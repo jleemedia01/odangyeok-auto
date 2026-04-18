@@ -1,0 +1,32 @@
+name: Generate Channel Icon
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install openai requests Pillow
+
+      - name: Generate icon
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/generate_channel_icon.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: odangyeok-channel-icon
+          path: assets/channel_icon*.png
+          if-no-files-found: error
+          retention-days: 90
