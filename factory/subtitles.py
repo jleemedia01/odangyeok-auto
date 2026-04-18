@@ -106,11 +106,13 @@ def _ass_header() -> str:
         f"&H00FFFFFF,&H000000FF,&H00000000,&H00000000,"
         f"-1,0,0,0,100,100,0,0,1,{SUBTITLE_OUTLINE},{SUBTITLE_SHADOW},"
         f"2,60,60,260,1\n"
-        # 문제 번호 배지 — 상단 좌측 소형
-        f"Style: NUM,{SUBTITLE_FONT},56,"
-        f"&H00FFFFFF,&H000000FF,&H00000000,&H00000000,"
-        f"-1,0,0,0,100,100,0,0,1,{SUBTITLE_OUTLINE},{SUBTITLE_SHADOW},"
-        f"7,60,60,60,1\n"
+        # 문제 번호 배지 — 우측 상단 반투명 검은 박스
+        # Alignment 9 (top-right), BorderStyle 3 (opaque box), BackColour 반투명 검정
+        # MarginR=50 MarginV=50 으로 채널 헤더와 겹치지 않게 오른쪽 여백 확보
+        f"Style: NUM,{SUBTITLE_FONT},42,"
+        f"&H00FFFFFF,&H000000FF,&H00000000,&H90000000,"
+        f"-1,0,0,0,100,100,0,0,3,14,0,"
+        f"9,50,50,50,1\n"
         # CTA 타이틀 — 큰 노란색 (상단)
         f"Style: CTA_H,{SUBTITLE_FONT},120,"
         f"&H0000E5FF,&H000000FF,&H00000000,&H00000000,"
