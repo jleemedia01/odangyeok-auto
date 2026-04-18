@@ -293,5 +293,60 @@
     "answer": "O",
     "title": "불교는 고려 국교였다? 🕉️",
     "timestamp": "2026-04-18T17:22:20.183925"
+  },
+  {
+    "episode_num": 28,
+    "quiz_idx": 1,
+    "era": "고려",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "정종은 어느 왕인가?",
+    "answer": "2",
+    "title": "고려의 왕은 누구?👑",
+    "timestamp": "2026-04-18T17:39:36.387543"
+  },
+  {
+    "episode_num": 28,
+    "quiz_idx": 2,
+    "era": "삼국",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "신라는 668년에 통일했다.",
+    "answer": "O",
+    "title": "신라의 천 년 역사! 📜",
+    "timestamp": "2026-04-18T17:39:36.387550"
+  },
+  {
+    "episode_num": 28,
+    "quiz_idx": 3,
+    "era": "조선",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "조선의 사신 역할은?",
+    "answer": "2",
+    "title": "사신의 역할은? 🏯",
+    "timestamp": "2026-04-18T17:39:36.387557"
+  },
+  {
+    "episode_num": 28,
+    "quiz_idx": 4,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "마르코 폴로는 1300년대에 활동했다.",
+    "answer": "O",
+    "title": "마르코 폴로는 1300년대에🇨🇳",
+    "timestamp": "2026-04-18T17:39:36.387559"
+  },
+  {
+    "episode_num": 28,
+    "quiz_idx": 5,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "대한민국 최초의 국회는?",
+    "answer": "1",
+    "title": "대한민국 최초의 국회는?",
+    "timestamp": "2026-04-18T17:39:36.387561"
   }
 ]
