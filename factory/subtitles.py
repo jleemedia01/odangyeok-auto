@@ -23,12 +23,12 @@ from config import (
     VIDEO_WIDTH,
 )
 
-# ── 문제 번호 배지 위치 (우측 상단 · 채널 헤더 아래) ──────────────────────────
-# 채널 헤더(72pt @ y=50)가 ~y=50-140 차지 → NUM 은 그 아래로 내려서 겹침 방지.
-# \an9 (top-right anchor): (NUM_BADGE_X, NUM_BADGE_Y) 가 텍스트의 우측 상단 점
+# ── 문제 번호 배지 위치 (우측 하단 · 상단 헤더/CTA 영역과 완전 분리) ─────────
+# \an3 (bottom-right anchor): (NUM_BADGE_X, NUM_BADGE_Y) 가 텍스트의 우측 하단 점
+# 하단 해설 자막(EXP align=2, MarginV=260) 위 영역을 피해 y=1720 배치.
 NUM_BADGE_X = VIDEO_WIDTH - 50    # 우측에서 50px
-NUM_BADGE_Y = 180                  # 헤더 아래로 내림 (헤더와 겹침 방지)
-NUM_BADGE_FONTSIZE = 52
+NUM_BADGE_Y = 1720                 # 바닥에서 200px 위 (explanation 자막 아래쪽)
+NUM_BADGE_FONTSIZE = 48
 
 _MAX_CHARS_PER_LINE = 11
 
@@ -182,11 +182,11 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
     base = idx * QUIZ_DURATION
     out = ""
 
-    # ── 문제 번호 배지 (전체 24s 고정, 우측 상단 절대 위치) ────────────────
-    # \an9 = top-right anchor, \pos = 절대 좌표 override (Style 의 Alignment·Margin 무시)
+    # ── 문제 번호 배지 (전체 24s 고정, 우측 하단 절대 위치) ────────────────
+    # \an3 = bottom-right anchor, \pos = 절대 좌표 override
     out += (
         f"Dialogue: 0,{_fmt(base)},{_fmt(base + QUIZ_DURATION)},NUM,,0,0,0,,"
-        f"{{\\an9\\pos({NUM_BADGE_X},{NUM_BADGE_Y})}}문제 {idx+1}/{total}\n"
+        f"{{\\an3\\pos({NUM_BADGE_X},{NUM_BADGE_Y})}}문제 {idx+1}/{total}\n"
     )
 
     # ── 질문 구간 (Q_BIG + 4지선다 보기) ────────────────────────────────────

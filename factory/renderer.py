@@ -177,13 +177,12 @@ def render_video(
     )
 
     # ── CTA 배지 3개 (각 4초, 중앙 대형) ──────────────────────────────────
-    # 색 이모지(👍🔔)는 NanumGothicBold 에 없어 tofu(□×) 로 렌더 → 기본 폰트에
-    # 존재하는 기하 심볼(♥ ✔ ★)로 교체해 정상 표시되도록.
+    # fonts-noto-color-emoji 설치됨 → fontconfig 폴백으로 컬러 이모지 렌더.
     _badge_dur = SEG_CTA / 3.0                     # 4.0s
     badges: list[tuple[float, float, str]] = [
-        (CTA_START + 0 * _badge_dur, CTA_START + 1 * _badge_dur, "♥ 좋아요"),
-        (CTA_START + 1 * _badge_dur, CTA_START + 2 * _badge_dur, "✔ 구독"),
-        (CTA_START + 2 * _badge_dur, CTA_START + 3 * _badge_dur, "★ 알림설정"),
+        (CTA_START + 0 * _badge_dur, CTA_START + 1 * _badge_dur, "❤️ 좋아요"),
+        (CTA_START + 1 * _badge_dur, CTA_START + 2 * _badge_dur, "✅ 구독"),
+        (CTA_START + 2 * _badge_dur, CTA_START + 3 * _badge_dur, "🔔 알림설정"),
     ]
     cta_badges = ""
     for st, en, text in badges:

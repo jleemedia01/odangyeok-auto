@@ -48,10 +48,10 @@ CTA_START       = NUM_QUIZZES * QUIZ_DURATION                                   
 CTA_FIXED_TEXT = "좋아요, 구독, 알림 설정 부탁드립니다!"
 
 # ── 채널 헤더 (상단 고정 오버레이, 전체 132초 동안 노출) ──────────────────────
-# 1080 width 안에 여유 있게 들어가도록 72pt 로 축소 (13자 × 72 ≈ 936px).
+# 64pt 로 축소 (13자 × 64 ≈ 832px, 1080 대비 여유). Y 80 으로 살짝 내림.
 CHANNEL_HEADER_TEXT = "오! 당신은 역사퀴즈왕"
-CHANNEL_HEADER_FONTSIZE = 72
-CHANNEL_HEADER_Y        = 50
+CHANNEL_HEADER_FONTSIZE = 64
+CHANNEL_HEADER_Y        = 80
 
 # ── Transition between quizzes (부드러운 페이드 전환) ─────────────────────────
 # 총 1.0초 구성: fade-in 0.4s → hold 0.2s → fade-out 0.4s, 중심이 문제 경계
