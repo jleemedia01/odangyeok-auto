@@ -73,5 +73,60 @@
     "answer": "1",
     "title": "고려의 중요 사건🗡️",
     "timestamp": "2026-04-18T16:52:04.423580"
+  },
+  {
+    "episode_num": 8,
+    "quiz_idx": 1,
+    "era": "삼국",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "가장 짧은 통치기간은?",
+    "answer": "4",
+    "title": "삼국의 왕들 🏰",
+    "timestamp": "2026-04-18T17:07:14.452653"
+  },
+  {
+    "episode_num": 8,
+    "quiz_idx": 2,
+    "era": "조선",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "병자호란은 1636년에 발생했다.",
+    "answer": "O",
+    "title": "병자호란은 1636년이다! ⌛",
+    "timestamp": "2026-04-18T17:07:14.452660"
+  },
+  {
+    "episode_num": 8,
+    "quiz_idx": 3,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "고대 문명의 발상지는?",
+    "answer": "1",
+    "title": "고대 문명의 발상🌍",
+    "timestamp": "2026-04-18T17:07:14.452672"
+  },
+  {
+    "episode_num": 8,
+    "quiz_idx": 4,
+    "era": "고려",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "고려는 성균관을 설치했다.",
+    "answer": "O",
+    "title": "고려의 성균관 설치? 📚",
+    "timestamp": "2026-04-18T17:07:14.452677"
+  },
+  {
+    "episode_num": 8,
+    "quiz_idx": 5,
+    "era": "근현대",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "일제 강점기의 주요 사건은?",
+    "answer": "3",
+    "title": "일제 강점기, 주요 사건은? 🇯🇵",
+    "timestamp": "2026-04-18T17:07:14.452680"
   }
 ]
