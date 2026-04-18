@@ -18,5 +18,60 @@
     "answer": "1",
     "title": "1919년 3.1운동의 주체는?🗽",
     "timestamp": "2026-04-18T16:30:53.922048"
+  },
+  {
+    "episode_num": 3,
+    "quiz_idx": 1,
+    "era": "삼국",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "신라의 유명한 병법서는?",
+    "answer": "2",
+    "title": "신라의 병법은? ⚔️",
+    "timestamp": "2026-04-18T16:52:04.423554"
+  },
+  {
+    "episode_num": 3,
+    "quiz_idx": 2,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "나폴레옹은 프랑스 황제이다.",
+    "answer": "O",
+    "title": "나폴레옹은 프랑스 황제다👑",
+    "timestamp": "2026-04-18T16:52:04.423564"
+  },
+  {
+    "episode_num": 3,
+    "quiz_idx": 3,
+    "era": "조선",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "이순신과 동시대 인물은?",
+    "answer": "1",
+    "title": "조선의 대대로! 📜",
+    "timestamp": "2026-04-18T16:52:04.423573"
+  },
+  {
+    "episode_num": 3,
+    "quiz_idx": 4,
+    "era": "근현대",
+    "difficulty": "고급",
+    "type": "OX",
+    "question": "일제 강점기는 1910년에 시작했다.",
+    "answer": "O",
+    "title": "일제는 한국에 식민지독재했다! 🇯🇵",
+    "timestamp": "2026-04-18T16:52:04.423577"
+  },
+  {
+    "episode_num": 3,
+    "quiz_idx": 5,
+    "era": "고려",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "고려 성종의 업적은?",
+    "answer": "1",
+    "title": "고려의 중요 사건🗡️",
+    "timestamp": "2026-04-18T16:52:04.423580"
   }
 ]
