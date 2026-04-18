@@ -120,6 +120,15 @@ def render_video(
             f"eq=brightness=0.40:enable='between(t,{flash_st:.2f},{flash_en:.2f})'"
         )
 
+    # CTA 시작 시 큰 화이트 플래시 (퀴즈 → CTA 구분)
+    fx_parts.append(
+        f"eq=brightness=0.45:enable='between(t,{CTA_START - 0.15:.2f},{CTA_START + 0.15:.2f})'"
+    )
+    # CTA 구간 전체에 살짝 어두운 tint 유지 — 문자 가독성
+    fx_parts.append(
+        f"eq=brightness=-0.12:enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})'"
+    )
+
     fx_chain = ",".join(fx_parts) + "," if fx_parts else ""
 
     # ── 채널 워터마크 ──────────────────────────────────────────────────────
@@ -131,6 +140,17 @@ def render_video(
         f":box=1:boxcolor=black@0.55:boxborderw=10,"
     )
 
+    # ── CTA 구간 구독 박스 (화면 하단 중앙, 펄스 애니메이션) ────────────────
+    subscribe_overlay = (
+        f"drawbox=x=(iw-860)/2:y=ih*0.78:w=860:h=160:color=red@0.92:t=fill"
+        f":enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})',"
+        f"drawtext=text='👉 구독하고 역사퀴즈왕 되기'"
+        f"{fontopt}"
+        f":fontsize=72:fontcolor=white"
+        f":x=(w-text_w)/2:y=ih*0.78+40"
+        f":enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})',"
+    )
+
     video_chain = (
         f"[0:v]"
         f"trim=duration={TOTAL_DURATION:.3f},setpts=PTS-STARTPTS,"
@@ -140,6 +160,7 @@ def render_video(
         f"{fx_chain}"
         f"{subs_filter}"
         f"{watermark}"
+        f"{subscribe_overlay}"
         f"fade=t=in:st=0:d=0.4,"
         f"fade=t=out:st={TOTAL_DURATION - 0.6:.3f}:d=0.6"
         f"[vfinal]"

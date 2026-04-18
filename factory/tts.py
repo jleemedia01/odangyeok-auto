@@ -23,13 +23,17 @@ from config import (
     TTS_VOICE_QUESTION,
     TTS_VOICE_REVEAL,
     TTS_VOICE_EXPLAIN,
+    TTS_VOICE_CTA,
     TTS_SPEED_QUESTION,
     TTS_SPEED_EXPLAIN,
+    TTS_SPEED_CTA,
     SEG_QUESTION,
     SEG_COUNTDOWN,
     SEG_REVEAL,
     SEG_EXPLANATION,
+    SEG_CTA,
     QUIZ_DURATION,
+    CTA_START,
     TOTAL_DURATION,
     AUDIO_BITRATE,
 )
@@ -216,25 +220,36 @@ def _build_quiz_audio(quiz: dict, idx: int, job_dir: Path) -> Path:
     return quiz_out
 
 
+# ── CTA 아웃트로 30s ─────────────────────────────────────────────────────────
+def _build_cta_audio(cta_text: str, job_dir: Path) -> Path:
+    cta_clean = _convert_numbers(_clean(cta_text))
+    c_raw = job_dir / "cta_raw.mp3"
+    c_out = job_dir / "cta.mp3"
+    _openai_tts(cta_clean, TTS_VOICE_CTA, TTS_SPEED_CTA, c_raw)
+    _pad_or_trim(c_raw, SEG_CTA, c_out)
+    c_raw.unlink(missing_ok=True)
+    return c_out
+
+
 # ── 공개 API ──────────────────────────────────────────────────────────────────
 def generate_episode_tts(
     quizzes: list[dict],
+    cta_text: str,
     output_path: Path,
     job_dir: Path,
 ) -> tuple[Path, list[dict]]:
     """
-    n개 퀴즈 → 120s(=n*24) MP3 단일 파일.
-    반환: (output_path, segment_info_list)
-    segment_info_list[i] 는 i번째 퀴즈의 절대 시각(전체 에피소드 기준) 구간 정보.
+    n개 퀴즈 + CTA → 150s (= n*24 + 30) MP3 단일 파일.
+    반환: (output_path, segment_info_list) — 퀴즈별 + CTA 구간 정보.
     """
     job_dir.mkdir(parents=True, exist_ok=True)
-    quiz_audios: list[Path] = []
+    parts: list[Path] = []
     segments: list[dict] = []
 
     for i, quiz in enumerate(quizzes):
         print(f"  [TTS] 문제 {i+1}/{len(quizzes)} — [{quiz.get('era','')}/{quiz['type']}] 합성 중...")
         qa = _build_quiz_audio(quiz, i, job_dir)
-        quiz_audios.append(qa)
+        parts.append(qa)
 
         base = i * QUIZ_DURATION
         segments.append({
@@ -246,7 +261,15 @@ def generate_episode_tts(
             "explanation":  {"start": base + SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL, "end": base + QUIZ_DURATION},
         })
 
-    _concat(quiz_audios, output_path)
+    print(f"  [TTS] CTA 아웃트로 ({len(cta_text)}자) 합성 중...")
+    cta_audio = _build_cta_audio(cta_text, job_dir)
+    parts.append(cta_audio)
+    segments.append({
+        "cta":   {"start": CTA_START, "end": TOTAL_DURATION},
+        "base":  CTA_START,
+    })
+
+    _concat(parts, output_path)
     actual = _get_duration(output_path)
     print(f"  [TTS] 에피소드 합성 완료: {output_path.name} ({actual:.1f}초 / 목표 {TOTAL_DURATION:.0f}s)")
     return output_path, segments

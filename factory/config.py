@@ -32,14 +32,16 @@ CHANNEL_NAME    = "오당역"
 CHANNEL_TAGLINE = "오! 당신은 역사퀴즈왕"
 CHANNEL_SUBTITLE = "하루 한 문제, 역사 퀴즈왕 도전!"
 
-# ── Episode = 5 quizzes × 24s = 120s ──────────────────────────────────────────
+# ── Episode = 5 quizzes × 24s + CTA 30s = 150s (2분 30초) ─────────────────────
 NUM_QUIZZES     = 5
 SEG_QUESTION    = 5.0    # 문제 제시
 SEG_COUNTDOWN   = 3.0    # 3→2→1 (비프음)
 SEG_REVEAL      = 3.0    # 정답 공개
 SEG_EXPLANATION = 13.0   # 해설
 QUIZ_DURATION   = SEG_QUESTION + SEG_COUNTDOWN + SEG_REVEAL + SEG_EXPLANATION   # 24.0
-TOTAL_DURATION  = NUM_QUIZZES * QUIZ_DURATION                                    # 120.0
+SEG_CTA         = 30.0   # 구독·알림·다음편 티저 아웃트로
+TOTAL_DURATION  = NUM_QUIZZES * QUIZ_DURATION + SEG_CTA                          # 150.0
+CTA_START       = NUM_QUIZZES * QUIZ_DURATION                                    # 120.0
 
 # ── Transition between quizzes ────────────────────────────────────────────────
 QUIZ_TRANSITION_FADE = 0.35   # 문제 경계에서 짧은 플래시/페이드 (seconds)
@@ -52,8 +54,10 @@ TTS_MODEL         = "tts-1"
 TTS_VOICE_QUESTION = "nova"     # 또렷한 여성 — 문제 제시
 TTS_VOICE_REVEAL   = "onyx"     # 무게감 있는 남성 — 정답 공개
 TTS_VOICE_EXPLAIN  = "shimmer"  # 친근한 여성 — 해설
+TTS_VOICE_CTA      = "onyx"     # 무게감 있는 남성 — 아웃트로 CTA
 TTS_SPEED_QUESTION = 1.10       # 5초 안에 질문 다 읽히게 조금 빠르게
 TTS_SPEED_EXPLAIN  = 1.05
+TTS_SPEED_CTA      = 1.0
 
 # ── Video specs ────────────────────────────────────────────────────────────────
 VIDEO_WIDTH   = 1080

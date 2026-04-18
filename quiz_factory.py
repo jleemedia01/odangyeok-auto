@@ -132,11 +132,16 @@ def run_pipeline(
         for i, q in enumerate(quizzes):
             log.info(f"  Q{i+1}/{cfg.NUM_QUIZZES} [{q['era']}/{q['difficulty']}/{q['type']}] {q['question']} → {q['answer']}")
 
-        # ── 2. TTS 에피소드 합성 ────────────────────────────────────────────
-        log.info("[2/7] TTS 에피소드 합성...")
+        # ── 2. CTA + TTS 에피소드 합성 ──────────────────────────────────────
+        log.info("[2/7] CTA 생성 + TTS 에피소드 합성 (150초)...")
+        from quiz_gen import generate_episode_cta
+        cta_text = generate_episode_cta(quizzes)
+        log.info(f"  CTA ({len(cta_text)}자): {cta_text[:60]}...")
+        job["cta"] = cta_text
+
         from tts import generate_episode_tts
         audio_path = job_dir / "audio.mp3"
-        audio_path, segments = generate_episode_tts(quizzes, audio_path, job_dir)
+        audio_path, segments = generate_episode_tts(quizzes, cta_text, audio_path, job_dir)
 
         # ── 3. 배경 이미지 ──────────────────────────────────────────────────
         # 5문제 섞여 있으므로 퀴즈쇼 느낌 중립 배경 — 첫 문제 시대로만 힌트
@@ -149,7 +154,7 @@ def run_pipeline(
         log.info("[4/7] 자막 생성...")
         from subtitles import generate_episode_subtitles
         subs_path = job_dir / "subs.ass"
-        subs_path = generate_episode_subtitles(quizzes, subs_path)
+        subs_path = generate_episode_subtitles(quizzes, subs_path, cta_text=cta_text)
 
         # ── 5. 썸네일 ────────────────────────────────────────────────────────
         log.info("[5/7] 썸네일 생성...")

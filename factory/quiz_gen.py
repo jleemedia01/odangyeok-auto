@@ -44,6 +44,10 @@ EXPLANATION_MAX = 100
 QUESTION_MAX_OX  = 22
 QUESTION_MAX_MC  = 24
 
+# CTA 아웃트로 — 30s TTS (speed 1.0)
+CTA_MIN = 130
+CTA_MAX = 180
+
 
 def safe_print(*args, **kwargs):
     try:
@@ -456,6 +460,55 @@ def generate_quiz_batch(
     if verbose:
         safe_print(f"  [배치] {n}문제 생성 완료 → episode {base_episode}", file=sys.stderr)
     return batch
+
+
+# ── 에피소드 CTA 생성 ─────────────────────────────────────────────────────────
+_CTA_FALLBACK = (
+    "오늘 5문제 중 몇 개 맞히셨나요? 댓글로 점수 꼭 남겨주세요. "
+    "오당역 구독과 알림 설정을 하시면 매일 새로운 역사 퀴즈가 올라옵니다. "
+    "다음 에피소드는 더 재미있는 문제들로 찾아뵐게요. "
+    "구독 버튼 눌러주시는 거 잊지 마시고, 오늘도 역사퀴즈왕 도전하세요!"
+)
+
+
+def generate_episode_cta(quizzes: list[dict]) -> str:
+    """에피소드 아웃트로 CTA 텍스트 생성 (30초 분량, onyx 남성 낭독용)."""
+    if not OPENAI_API_KEY:
+        return _CTA_FALLBACK
+
+    eras = list(dict.fromkeys(q.get("era", "") for q in quizzes))
+    themes = ", ".join([f"{q['era']}({q['type']})" for q in quizzes[:5]])
+
+    prompt = (
+        f"유튜브 역사퀴즈 채널 '{CHANNEL_NAME}'의 30초 아웃트로 CTA 멘트를 작성하세요.\n\n"
+        f"[오늘 다룬 문제 테마] {themes}\n"
+        f"[시대 범위] {' · '.join(eras)}\n\n"
+        f"[작성 규칙]\n"
+        f"- 한글 {CTA_MIN}~{CTA_MAX}자 (공백 포함, 30초 TTS 분량)\n"
+        f"- 남성 성우가 친근하게 낭독할 수 있는 자연스러운 문장\n"
+        f"- 반드시 포함: (1) 점수 댓글 요청 (2) 구독·알림 요청 (3) 다음 편 기대감\n"
+        f"- 오늘의 시대·테마를 한 번 자연스럽게 언급\n"
+        f"- 본문만 출력, 인사말·설명·JSON 키 금지"
+    )
+
+    try:
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        resp = client.chat.completions.create(
+            model=LLM_MODEL,
+            max_tokens=500,
+            messages=[
+                {"role": "system", "content": "한국어 유튜브 아웃트로 카피라이터. 본문만 출력."},
+                {"role": "user", "content": prompt},
+            ],
+        )
+        text = resp.choices[0].message.content.strip()
+        if CTA_MIN <= len(text) <= CTA_MAX * 1.2:
+            safe_print(f"  [CTA] {len(text)}자 생성", file=sys.stderr)
+            return text
+        safe_print(f"  [CTA] 길이 미달/초과({len(text)}자) — fallback 사용", file=sys.stderr)
+    except Exception as e:
+        safe_print(f"  [CTA] 생성 오류 ({e}) — fallback 사용", file=sys.stderr)
+    return _CTA_FALLBACK
 
 
 # ── 하위 호환 (단일 생성) ─────────────────────────────────────────────────────

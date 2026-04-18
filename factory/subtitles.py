@@ -16,7 +16,10 @@ from config import (
     SEG_QUESTION,
     SEG_COUNTDOWN,
     SEG_REVEAL,
+    SEG_CTA,
     QUIZ_DURATION,
+    CTA_START,
+    TOTAL_DURATION,
 )
 
 _MAX_CHARS_PER_LINE = 11
@@ -107,7 +110,22 @@ def _ass_header() -> str:
         f"Style: NUM,{SUBTITLE_FONT},56,"
         f"&H00FFFFFF,&H000000FF,&H00000000,&H00000000,"
         f"-1,0,0,0,100,100,0,0,1,{SUBTITLE_OUTLINE},{SUBTITLE_SHADOW},"
-        f"7,60,60,60,1\n\n"
+        f"7,60,60,60,1\n"
+        # CTA 타이틀 — 큰 노란색 (상단)
+        f"Style: CTA_H,{SUBTITLE_FONT},120,"
+        f"&H0000E5FF,&H000000FF,&H00000000,&H00000000,"
+        f"-1,0,0,0,100,100,0,0,1,12,0,"
+        f"8,60,60,320,1\n"
+        # CTA 본문 자막 — 중앙 하단
+        f"Style: CTA_B,{SUBTITLE_FONT},70,"
+        f"&H00FFFFFF,&H000000FF,&H00000000,&H00000000,"
+        f"-1,0,0,0,100,100,0,0,1,{SUBTITLE_OUTLINE},{SUBTITLE_SHADOW},"
+        f"2,60,60,320,1\n"
+        # 구독 배지 — 큰 빨간 박스 (중앙)
+        f"Style: CTA_SUB,{SUBTITLE_FONT},90,"
+        f"&H00FFFFFF,&H000000FF,&H0000003C,&H0000003C,"
+        f"-1,0,0,0,100,100,0,0,3,12,0,"
+        f"5,0,0,0,1\n\n"
         "[Events]\n"
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
     )
@@ -171,13 +189,50 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
     return out
 
 
-def generate_episode_subtitles(quizzes: list[dict], output_path: Path) -> Path:
+def _cta_events(cta_text: str) -> str:
+    """아웃트로 30s CTA 자막. 상단 훅 + 중앙 구독 배지 + 하단 본문 자막."""
+    out = ""
+    # 상단 큰 훅 — 전체 30s 고정
+    out += _dlg("CTA_H", CTA_START, TOTAL_DURATION, "역사퀴즈왕 도전!")
+
+    # 중앙 구독 배지 — 10초 단위로 번갈아 표시 (구독 → 알림 → 구독 → 알림)
+    cycles = [
+        (CTA_START + 0,  CTA_START + 7,  "✔ 구독 +  🔔 알림"),
+        (CTA_START + 7,  CTA_START + 15, "💬 점수 댓글 남기기"),
+        (CTA_START + 15, CTA_START + 23, "✔ 구독 +  🔔 알림"),
+        (CTA_START + 23, TOTAL_DURATION, "📺 다음 편도 놓치지 마세요"),
+    ]
+    for s, e, t in cycles:
+        out += _dlg("CTA_SUB", s, e, t)
+
+    # 하단 본문 — CTA 텍스트를 시간 비례로 할당
+    chunks = _split_chunks(cta_text)
+    if chunks:
+        char_counts = [max(len(c.replace(" ", "")), 1) for c in chunks]
+        total_chars = sum(char_counts)
+        span = max(SEG_CTA - 0.5, 1.0)
+        t_cur = CTA_START + 0.2
+        for i, (c, n) in enumerate(zip(chunks, char_counts)):
+            dur = max(0.4, min(4.0, (n / total_chars) * span))
+            te  = t_cur + dur if i < len(chunks) - 1 else TOTAL_DURATION - 0.2
+            out += _dlg("CTA_B", t_cur, te, c)
+            t_cur = te
+    return out
+
+
+def generate_episode_subtitles(
+    quizzes: list[dict],
+    output_path: Path,
+    cta_text: str = "",
+) -> Path:
     ass = _ass_header()
     for i, q in enumerate(quizzes):
         ass += _quiz_events(q, i, len(quizzes))
+    if cta_text:
+        ass += _cta_events(cta_text)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(ass, encoding="utf-8")
-    print(f"  [subs] 에피소드 ASS 생성 완료: {output_path.name} ({len(quizzes)}문제)")
+    print(f"  [subs] 에피소드 ASS 생성 완료: {output_path.name} ({len(quizzes)}문제 + CTA)")
     return output_path
 
 
