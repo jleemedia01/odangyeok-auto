@@ -216,28 +216,59 @@ def _build_prompt(
 }}"""
 
 
-# ── 팩트체크 ──────────────────────────────────────────────────────────────────
+# ── 해설 확장 ─────────────────────────────────────────────────────────────────
+def _expand_explanation(data: dict, target_min: int, client: OpenAI) -> str:
+    """해설이 너무 짧을 때 사실 유지하며 확장."""
+    current = data.get("explanation", "")
+    prompt = (
+        "다음 역사 퀴즈 해설이 너무 짧습니다. "
+        f"역사 사실은 그대로 유지하되 배경·맥락·뒷이야기를 추가해 "
+        f"한글 {target_min}~750자 분량(공백 포함)으로 확장해주세요. "
+        "첫 문장 '정답은 ...' 과 끝 문장(구독 CTA)은 반드시 유지.\n\n"
+        f"[질문] {data.get('question','')}\n"
+        f"[정답] {data.get('answer','')}\n"
+        f"[현재 해설 ({len(current)}자)]\n{current}\n\n"
+        "확장된 해설 본문만 출력. 설명·인사말·JSON 키 금지."
+    )
+    try:
+        resp = client.chat.completions.create(
+            model=LLM_MODEL,
+            max_tokens=1500,
+            messages=[
+                {"role": "system", "content": "한국어 역사 나레이션 작가. 본문만 출력."},
+                {"role": "user",   "content": prompt},
+            ],
+        )
+        expanded = resp.choices[0].message.content.strip()
+        safe_print(f"  [확장] {len(current)}자 → {len(expanded)}자", file=sys.stderr)
+        return expanded if len(expanded) >= len(current) else current
+    except Exception as e:
+        safe_print(f"  [확장] 실패 — 원본 유지: {e}", file=sys.stderr)
+        return current
+
+
+# ── 팩트체크 (explanation 제외) ──────────────────────────────────────────────
 def _factcheck(data: dict, client: OpenAI) -> dict:
-    """GPT-4o-mini 2차 검증 — 사실 오류 시 수정본 반환."""
+    """GPT-4o-mini 2차 검증 — 질문/보기/정답만 사실 오류 확인. 해설은 건드리지 않음."""
     payload = json.dumps({
-        "question":    data.get("question"),
-        "options":     data.get("options"),
-        "answer":      data.get("answer"),
-        "explanation": data.get("explanation"),
-        "type":        data.get("type"),
-        "era":         data.get("era"),
+        "question": data.get("question"),
+        "options":  data.get("options"),
+        "answer":   data.get("answer"),
+        "type":     data.get("type"),
+        "era":      data.get("era"),
     }, ensure_ascii=False, indent=2)
 
-    prompt = f"""역사 퀴즈 팩트체크.
+    prompt = f"""역사 퀴즈 질문·보기·정답의 팩트체크.
 
 [검토 기준]
-1. 질문·보기·정답·해설의 역사 사실 오류
-2. 야사·드라마·소설 내용을 사실로 서술한 경우
-3. 연도·인물·사건 관계 오류
+1. 질문 진술이 역사 사실과 다름
+2. 보기 중 정답이 틀렸거나 오답이 실제로는 맞는 경우
+3. 야사·드라마·소설 내용을 사실로 서술
 
 [출력 규칙]
-- 문제 없으면: "통과" 한 단어만 출력
-- 문제 있으면: 수정된 필드만 JSON 으로 출력 (question/options/answer/explanation 중 수정 필요한 것만)
+- 문제 없으면: "통과" 한 단어
+- 문제 있으면: 수정 필요한 필드만 JSON (question/options/answer 중)
+- explanation(해설)은 절대 수정하지 말 것 — 이 필드는 검토 대상 아님
 
 [퀴즈]
 {payload}"""
@@ -320,12 +351,19 @@ def generate_quiz(
             data["difficulty"] = difficulty
             data["type"]       = quiz_type
 
+            # 해설 길이 부족 시 확장 1회
+            if len(data.get("explanation", "")) < 600:
+                data["explanation"] = _expand_explanation(data, 600, client)
+
             _validate_quiz_schema(data, quiz_type)
+
+            # 팩트체크 — explanation 은 건드리지 않음
+            orig_explanation = data["explanation"]
             data = _factcheck(data, client)
-            # 팩트체크 수정본도 우리 메타값 유지
-            data["era"]        = era
-            data["difficulty"] = difficulty
-            data["type"]       = quiz_type
+            data["explanation"] = orig_explanation
+            data["era"]         = era
+            data["difficulty"]  = difficulty
+            data["type"]        = quiz_type
             _validate_quiz_schema(data, quiz_type)
 
             # 히스토리 저장
