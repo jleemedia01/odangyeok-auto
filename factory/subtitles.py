@@ -78,8 +78,9 @@ def _explanation_timings(
     char_counts = [max(len(c.replace(" ", "")), 1) for c in chunks]
     total = sum(char_counts)
 
-    # 예상 낭독 시간 (실제 TTS 길이 근사). 한국어 speed 1.05 기준 ~4.2 char/s.
-    speech_rate = 4.2 * tts_speed
+    # 예상 낭독 시간 (실제 TTS 길이 근사). 한국어 경험적 ~3.7 char/s × speed.
+    # (4.2 는 낙관적 — 실제보다 짧게 계산돼 자막이 밀렸음.)
+    speech_rate = 3.7 * tts_speed
     expected = total / speech_rate
     # 세그먼트 경계 안에 들어가도록 클램프 (tail 0.1s 버퍼)
     max_span = end - start - 0.1
@@ -203,14 +204,15 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
                 f"{{\\pos(540,{y})}}{labels[i]} {opt}\n"
             )
     elif quiz["type"] == "OX":
-        # 질문 영역 아래에 큰 O / X 두 선택지 표시
+        # 질문 영역 아래에 예쁜 심볼 O(○)/X(✕) 두 선택지 표시
+        # (이전 ASCII 'X' 가 일부 폰트에서 □ 로 렌더되는 문제 해결)
         out += (
             f"Dialogue: 0,{_fmt(base + 0.3)},{_fmt(q_end)},OX_O,,0,0,0,,"
-            f"{{\\pos(320,1060)}}O\n"
+            f"{{\\pos(320,1060)}}○\n"
         )
         out += (
             f"Dialogue: 0,{_fmt(base + 0.3)},{_fmt(q_end)},OX_X,,0,0,0,,"
-            f"{{\\pos(760,1060)}}X\n"
+            f"{{\\pos(760,1060)}}✕\n"
         )
 
     # ── 카운트다운 (3, 2, 1 — 각 1초) ───────────────────────────────────────
@@ -231,11 +233,12 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
     rev_start = cd_base + SEG_COUNTDOWN
     rev_end   = rev_start + SEG_REVEAL
     if quiz["type"] == "OX":
-        # OX: 정답이 O면 파란 O, X면 빨간 X (OX_O / OX_X 스타일 재사용)
-        style = "OX_O" if quiz["answer"] == "O" else "OX_X"
+        # OX: O → 파란 ○, X → 빨간 ✕ (예쁜 심볼 + 확대 애니메이션)
+        style  = "OX_O" if quiz["answer"] == "O" else "OX_X"
+        symbol = "○"    if quiz["answer"] == "O" else "✕"
         out += (
             f"Dialogue: 0,{_fmt(rev_start)},{_fmt(rev_end)},{style},,0,0,0,,"
-            f"{{\\fscx120\\fscy120\\t(0,250,\\fscx140\\fscy140)}}{quiz['answer']}\n"
+            f"{{\\fscx120\\fscy120\\t(0,250,\\fscx140\\fscy140)}}{symbol}\n"
         )
     else:
         reveal_text = f"{quiz['answer']}번"

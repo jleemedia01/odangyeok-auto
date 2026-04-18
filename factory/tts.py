@@ -179,7 +179,10 @@ def _build_quiz_audio(quiz: dict, idx: int, job_dir: Path) -> Path:
     q_text = _clean(quiz["question"])
 
     if quiz["type"] == "OX":
-        reveal_text = f"정답은 {quiz['answer']}!"
+        # "O" / "X" 알파벳 그대로 읽으면 TTS 가 영어식 ('오우'/'엑스') 로
+        # 발음하거나 불일치할 수 있어 한국어 발음으로 명시 변환.
+        ans_ko = "오" if quiz["answer"] == "O" else "엑스"
+        reveal_text = f"정답은 {ans_ko}!"
     else:
         ans_idx = int(quiz["answer"]) - 1
         opts = quiz.get("options", [])

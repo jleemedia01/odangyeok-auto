@@ -70,7 +70,7 @@ TTS_VOICE_REVEAL   = "onyx"     # 무게감 있는 남성 — 정답 공개
 TTS_VOICE_EXPLAIN  = "shimmer"  # 친근한 여성 — 해설
 TTS_VOICE_CTA      = "onyx"     # 무게감 있는 남성 — 아웃트로 CTA
 TTS_SPEED_QUESTION = 1.05       # 질문은 정확한 발음 우선 — 과속 지양
-TTS_SPEED_EXPLAIN  = 1.05
+TTS_SPEED_EXPLAIN  = 1.10       # 13초 안에 확실히 읽히게
 TTS_SPEED_CTA      = 1.0
 
 # ── Video specs ────────────────────────────────────────────────────────────────

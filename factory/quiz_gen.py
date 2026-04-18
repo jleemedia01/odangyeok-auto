@@ -36,9 +36,10 @@ from config import (
 
 HISTORY_FILE = REPO_ROOT / "quiz_history.json"
 
-# 13s TTS 낭독 — 간결화 (공백 포함 50~100자)
-EXPLANATION_MIN = 50
-EXPLANATION_MAX = 100
+# 13s TTS 낭독 — 속도 1.10 에서 경험적 ~4.0 char/s → 13s 안전 반영.
+# MAX 를 과거 100 → 50 으로 축소 (audio 잘려서 다음 퀴즈로 넘어가는 버그 방지).
+EXPLANATION_MIN = 30
+EXPLANATION_MAX = 50
 
 # 질문 길이 하드 리밋 — 5s 안에 읽혀야 함 (TTS speed 1.1 기준)
 QUESTION_MAX_OX  = 22
@@ -288,13 +289,14 @@ def _build_prompt(
 
 {type_hint}
 
-[해설(explanation) 작성 규칙 — 매우 중요]
-- 13초 TTS 낭독용 — 한글 {EXPLANATION_MIN}~{EXPLANATION_MAX}자 분량(공백 포함)
-- 정답은 영상에서 남성 음성이 별도로 공개함 — 해설에서 "정답은 ..." 문구는 절대 쓰지 말 것
-- 첫 문장은 바로 근거·맥락부터 시작 (예: "삼국통일을 이룬 인물이 김유신이기 때문인데요, ...")
-- 구조: 근거 한 줄 → 핵심 맥락 한 줄 → (선택) 흥미 포인트 한 줄
-- 간결·명료·친근한 톤. 초등 고학년도 이해 가능
-- 구체적 연도·인물 1개 이상 포함
+[해설(explanation) 작성 규칙 — 매우 중요 · 길이 엄수]
+- 13초 TTS 낭독용 — 한글 {EXPLANATION_MIN}~{EXPLANATION_MAX}자 (공백 포함). 절대 초과 금지.
+- 초과 시 오디오가 잘려 다음 문제로 넘어감 → 시청자에게 버그처럼 보임.
+- 정답은 영상에서 남성 음성이 별도 공개 — 해설에서 "정답은 ..." 표현 절대 금지
+- 바로 근거·맥락부터 시작 (예: "고려 광종이 왕권 강화를 위해 시행했기 때문입니다")
+- 구조: 한 줄 근거 + (선택) 한 줄 추가 맥락 — 2문장 이내 권장
+- 친근한 톤. 초등 고학년도 이해 가능
+- 구체적 연도·인물 1개 포함
 - 지시문·마크다운·JSON 키 금지 — 바로 낭독 텍스트
 
 [title / thumbnail_text]
