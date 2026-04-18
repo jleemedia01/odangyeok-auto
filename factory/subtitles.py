@@ -98,6 +98,15 @@ def _ass_header() -> str:
         f"&H00FFFFFF,&H000000FF,&H00000000,&H00000000,"
         f"-1,0,0,0,100,100,0,0,1,{SUBTITLE_OUTLINE},{SUBTITLE_SHADOW},"
         f"5,80,80,0,1\n"
+        # OX 보기 — 크고 대조적 (파란 O · 빨간 X)
+        f"Style: OX_O,{SUBTITLE_FONT},260,"
+        f"&H00FF8800,&H000000FF,&H00000000,&H00000000,"
+        f"-1,0,0,0,100,100,0,0,1,18,0,"
+        f"5,0,0,0,1\n"
+        f"Style: OX_X,{SUBTITLE_FONT},260,"
+        f"&H000000FF,&H000000FF,&H00000000,&H00000000,"
+        f"-1,0,0,0,100,100,0,0,1,18,0,"
+        f"5,0,0,0,1\n"
         # 카운트다운 숫자 (초대형, 중앙)
         f"Style: CD,{SUBTITLE_FONT},520,"
         f"&H0000FFFF,&H000000FF,&H00000000,&H00000000,"
@@ -171,6 +180,16 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
                 f"Dialogue: 0,{_fmt(base + 0.3)},{_fmt(q_end)},Q_OPT,,0,0,0,,"
                 f"{{\\pos(540,{y})}}{labels[i]} {opt}\n"
             )
+    elif quiz["type"] == "OX":
+        # 질문 영역 아래에 큰 O / X 두 선택지 표시
+        out += (
+            f"Dialogue: 0,{_fmt(base + 0.3)},{_fmt(q_end)},OX_O,,0,0,0,,"
+            f"{{\\pos(320,1060)}}O\n"
+        )
+        out += (
+            f"Dialogue: 0,{_fmt(base + 0.3)},{_fmt(q_end)},OX_X,,0,0,0,,"
+            f"{{\\pos(760,1060)}}X\n"
+        )
 
     # ── 카운트다운 (3, 2, 1 — 각 1초) ───────────────────────────────────────
     cd_base = base + SEG_QUESTION
@@ -189,9 +208,17 @@ def _quiz_events(quiz: dict, idx: int, total: int) -> str:
     # ── 정답 공개 ────────────────────────────────────────────────────────────
     rev_start = cd_base + SEG_COUNTDOWN
     rev_end   = rev_start + SEG_REVEAL
-    reveal_text = quiz["answer"] if quiz["type"] == "OX" else f"{quiz['answer']}번"
-    out += _dlg("REVEAL", rev_start, rev_end, reveal_text,
-                inline="{\\fscx80\\fscy80\\t(0,250,\\fscx100\\fscy100)}")
+    if quiz["type"] == "OX":
+        # OX: 정답이 O면 파란 O, X면 빨간 X (OX_O / OX_X 스타일 재사용)
+        style = "OX_O" if quiz["answer"] == "O" else "OX_X"
+        out += (
+            f"Dialogue: 0,{_fmt(rev_start)},{_fmt(rev_end)},{style},,0,0,0,,"
+            f"{{\\fscx120\\fscy120\\t(0,250,\\fscx140\\fscy140)}}{quiz['answer']}\n"
+        )
+    else:
+        reveal_text = f"{quiz['answer']}번"
+        out += _dlg("REVEAL", rev_start, rev_end, reveal_text,
+                    inline="{\\fscx80\\fscy80\\t(0,250,\\fscx100\\fscy100)}")
 
     # ── 해설 ────────────────────────────────────────────────────────────────
     exp_start = rev_end
