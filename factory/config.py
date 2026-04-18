@@ -51,8 +51,14 @@ CHANNEL_HEADER_TEXT = "오! 당신은 역사퀴즈왕"
 CHANNEL_HEADER_FONTSIZE = 90
 CHANNEL_HEADER_Y        = 50
 
-# ── Transition between quizzes ────────────────────────────────────────────────
-QUIZ_TRANSITION_FADE = 0.35   # 문제 경계에서 짧은 플래시/페이드 (seconds)
+# ── Transition between quizzes (부드러운 페이드 전환) ─────────────────────────
+# 총 1.0초 구성: fade-in 0.4s → hold 0.2s → fade-out 0.4s, 중심이 문제 경계
+QUIZ_TRANSITION_FADE_IN   = 0.4
+QUIZ_TRANSITION_HOLD      = 0.2
+QUIZ_TRANSITION_FADE_OUT  = 0.4
+QUIZ_TRANSITION_PEAK      = 0.50   # brightness 피크 (0.0~1.0)
+QUIZ_TRANSITION_TOTAL     = QUIZ_TRANSITION_FADE_IN + QUIZ_TRANSITION_HOLD + QUIZ_TRANSITION_FADE_OUT  # 1.0s
+QUIZ_TRANSITION_FADE      = QUIZ_TRANSITION_TOTAL   # 하위 호환 별칭
 
 # ── LLM ────────────────────────────────────────────────────────────────────────
 LLM_MODEL = "gpt-4o-mini"

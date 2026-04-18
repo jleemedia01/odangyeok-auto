@@ -33,13 +33,50 @@ from config import (
     CTA_START,
     TOTAL_DURATION,
     NUM_QUIZZES,
-    QUIZ_TRANSITION_FADE,
+    QUIZ_TRANSITION_FADE_IN,
+    QUIZ_TRANSITION_HOLD,
+    QUIZ_TRANSITION_FADE_OUT,
+    QUIZ_TRANSITION_PEAK,
     CHANNEL_NAME,
     CHANNEL_HEADER_TEXT,
     CHANNEL_HEADER_FONTSIZE,
     CHANNEL_HEADER_Y,
     FONT_BOLD,
 )
+
+
+def _fade_flash_filter(center_t: float, peak: float = None) -> str:
+    """
+    center_t 를 기준으로 부드러운 화이트 플래시 (페이드인→유지→페이드아웃).
+    총 duration = FADE_IN + HOLD + FADE_OUT (기본 1.0s).
+    flash 바깥에서는 brightness=0 이라 원본과 동일.
+    """
+    if peak is None:
+        peak = QUIZ_TRANSITION_PEAK
+    fi  = QUIZ_TRANSITION_FADE_IN
+    hd  = QUIZ_TRANSITION_HOLD
+    fo  = QUIZ_TRANSITION_FADE_OUT
+
+    t_start   = center_t - fi - hd / 2     # fade-in 시작
+    t_hold_in = center_t - hd / 2          # peak 진입 (hold 시작)
+    t_hold_out= center_t + hd / 2          # peak 종료 (hold 끝)
+    t_end     = center_t + fo + hd / 2     # fade-out 끝
+
+    # brightness 값:
+    #   t_start ~ t_hold_in  : 0 → peak 선형 증가
+    #   t_hold_in ~ t_hold_out : peak 유지
+    #   t_hold_out ~ t_end   : peak → 0 선형 감소
+    #   외부                    : 0
+    expr = (
+        f"if(between(t\\,{t_start:.3f}\\,{t_hold_in:.3f})\\,"
+        f"((t-{t_start:.3f})/{fi:.3f})*{peak:.3f}\\,"
+        f"if(between(t\\,{t_hold_in:.3f}\\,{t_hold_out:.3f})\\,"
+        f"{peak:.3f}\\,"
+        f"if(between(t\\,{t_hold_out:.3f}\\,{t_end:.3f})\\,"
+        f"(1-(t-{t_hold_out:.3f})/{fo:.3f})*{peak:.3f}\\,"
+        f"0)))"
+    )
+    return f"eq=brightness='{expr}'"
 
 
 def _has_ass_filter() -> bool:
@@ -102,13 +139,9 @@ def render_video(
     for qi in range(NUM_QUIZZES):
         base = qi * QUIZ_DURATION
 
-        # 문제 간 전환 — 시작 시점 화이트 플래시 (첫 문제 제외)
+        # 문제 간 부드러운 화이트 플래시 (첫 문제 제외) — 총 1.0s fade
         if qi > 0:
-            t0 = base - QUIZ_TRANSITION_FADE / 2
-            t1 = base + QUIZ_TRANSITION_FADE / 2
-            fx_parts.append(
-                f"eq=brightness=0.35:enable='between(t,{t0:.3f},{t1:.3f})'"
-            )
+            fx_parts.append(_fade_flash_filter(base))
 
         # 카운트다운 3초 동안 매 초 펄스 (3, 2, 1)
         for i in range(3):
@@ -125,10 +158,8 @@ def render_video(
             f"eq=brightness=0.40:enable='between(t,{flash_st:.2f},{flash_en:.2f})'"
         )
 
-    # CTA 시작 시 큰 화이트 플래시 (퀴즈 → CTA 구분)
-    fx_parts.append(
-        f"eq=brightness=0.45:enable='between(t,{CTA_START - 0.15:.2f},{CTA_START + 0.15:.2f})'"
-    )
+    # 퀴즈 → CTA 전환도 같은 부드러운 페이드 플래시 적용
+    fx_parts.append(_fade_flash_filter(CTA_START, peak=0.55))
     # CTA 구간 전체에 살짝 어두운 tint 유지 — 문자 가독성
     fx_parts.append(
         f"eq=brightness=-0.12:enable='between(t,{CTA_START:.2f},{TOTAL_DURATION:.2f})'"
