@@ -65,10 +65,9 @@ def _build_episode_meta(quizzes: list[dict]) -> dict:
     eras = list(dict.fromkeys([q.get("era", "") for q in quizzes]))
     diffs = list(dict.fromkeys([q.get("difficulty", "") for q in quizzes]))
 
-    # 에피소드 번호는 히스토리 관리용 — 제목에는 노출하지 않음
+    # 에피소드 번호·시대는 히스토리·설명 전용 — 제목은 일관된 브랜드 포맷
     ep_num = quizzes[0].get("episode_num", "")
-    era_hint = " · ".join(eras[:3]) if eras else "한국사"
-    title = f"오! 당신은 역사퀴즈왕 🏆 | 5문제 챌린지 ({era_hint})"
+    title = "오! 당신은 역사퀴즈왕 | 오늘의 5문제 🏆"
 
     thumbnail_text = "5문제 다 맞히면 역사퀴즈왕!"
 
