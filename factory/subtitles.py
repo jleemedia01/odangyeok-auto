@@ -59,18 +59,40 @@ def _split_chunks(text: str) -> list[str]:
     return chunks
 
 
-def _explanation_timings(text: str, start: float, end: float) -> list[tuple[float, float, str]]:
+def _explanation_timings(
+    text: str,
+    start: float,
+    end: float,
+    tts_speed: float = 1.05,
+) -> list[tuple[float, float, str]]:
+    """
+    해설 자막 타이밍 — 실제 TTS 낭독 예상 시간에 맞춰 분배.
+
+    한국어 TTS 경험적 속도: 약 4 char/s (공백 포함). 속도 계수 적용.
+    세그먼트 전체에 분배하지 않고 expected_duration 내에 자막 완료
+    → 음성 끝난 뒤 자막이 끌리는 현상 방지 (사용자 보고: '자막이 느려').
+    """
     chunks = _split_chunks(text)
     if not chunks:
         return []
     char_counts = [max(len(c.replace(" ", "")), 1) for c in chunks]
     total = sum(char_counts)
-    span = max(end - start - 0.2, 0.6)
+
+    # 예상 낭독 시간 (실제 TTS 길이 근사). 한국어 speed 1.05 기준 ~4.2 char/s.
+    speech_rate = 4.2 * tts_speed
+    expected = total / speech_rate
+    # 세그먼트 경계 안에 들어가도록 클램프 (tail 0.1s 버퍼)
+    max_span = end - start - 0.1
+    span = min(expected, max_span)
+    span = max(span, 0.6)
+
     out: list[tuple[float, float, str]] = []
-    t = start + 0.05
+    t = start + 0.02
     for i, (c, n) in enumerate(zip(chunks, char_counts)):
-        dur = max(0.35, min(3.5, (n / total) * span))
-        te  = t + dur if i < len(chunks) - 1 else end - 0.05
+        dur = max(0.30, (n / total) * span)
+        te  = t + dur
+        if i == len(chunks) - 1:
+            te = min(t + dur, start + span + 0.05)
         out.append((t, te, c))
         t = te
     return out

@@ -102,10 +102,18 @@ def _openai_tts(text: str, voice: str, speed: float, out_path: Path) -> None:
 
 
 def _pad_or_trim(src: Path, target: float, out: Path) -> None:
+    """
+    TTS 원본의 앞쪽 무음을 제거해 음성이 t=0부터 즉시 시작하도록 하고,
+    이어서 target 초에 맞춰 뒷쪽을 패딩 또는 트림.
+    OpenAI TTS 가 서두에 넣는 0.2~0.4s 무음이 자막 싱크 밀림 원인.
+    """
     cmd = [
         "ffmpeg", "-y",
         "-i", str(src),
-        "-af", f"apad=whole_dur={target:.3f}",
+        "-af", (
+            "silenceremove=start_periods=1:start_duration=0.05:start_threshold=-45dB,"
+            f"apad=whole_dur={target:.3f}"
+        ),
         "-t", f"{target:.3f}",
         "-ac", "1",
         "-ar", "44100",
