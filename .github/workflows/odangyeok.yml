@@ -38,9 +38,9 @@ on:
           - "OX"
           - "4지선다"
       count:
-        description: "생성 개수"
+        description: "생성 개수 (cron 기본값 동일하게 적용)"
         required: false
-        default: "1"
+        default: "3"
       no_upload:
         description: "업로드 스킵 (테스트용)"
         type: boolean
@@ -103,7 +103,9 @@ jobs:
           if [ -n "${{ github.event.inputs.type }}" ]; then
             ARGS="$ARGS --type ${{ github.event.inputs.type }}"
           fi
-          COUNT="${{ github.event.inputs.count || '1' }}"
+          # cron 트리거 시 inputs.count 가 없으면 fallback '3' 사용
+          # 하루 cron 3회 × COUNT 3 = 9 영상/일 (YouTube 미인증 한도 15/일 안전)
+          COUNT="${{ github.event.inputs.count || '3' }}"
           ARGS="$ARGS --count $COUNT"
           if [ "${{ github.event.inputs.no_upload }}" = "true" ]; then
             ARGS="$ARGS --no-upload"
