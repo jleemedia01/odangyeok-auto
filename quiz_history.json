@@ -943,5 +943,65 @@
     "confidence": 95,
     "title": "루터, 종교개혁의 시작! ✝️",
     "timestamp": "2026-04-18T22:28:52.163366"
+  },
+  {
+    "episode_num": 83,
+    "quiz_idx": 1,
+    "era": "조선",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "과전법을 시행한 왕은?",
+    "answer": "2",
+    "confidence": 98,
+    "title": "조선의 성과! 📜",
+    "timestamp": "2026-04-19T05:55:25.974885"
+  },
+  {
+    "episode_num": 83,
+    "quiz_idx": 2,
+    "era": "고려",
+    "difficulty": "중급",
+    "type": "OX",
+    "question": "광종은 왕권 강화를 꾀했다.",
+    "answer": "O",
+    "confidence": 95,
+    "title": "고려의 개혁 정책🛡️",
+    "timestamp": "2026-04-19T05:55:25.974892"
+  },
+  {
+    "episode_num": 83,
+    "quiz_idx": 3,
+    "era": "근현대",
+    "difficulty": "중급",
+    "type": "4지선다",
+    "question": "3.1운동의 주된 원인?",
+    "answer": "1",
+    "confidence": 95,
+    "title": "대한민국의 독립운동! 🇰🇷",
+    "timestamp": "2026-04-19T05:55:25.974898"
+  },
+  {
+    "episode_num": 83,
+    "quiz_idx": 4,
+    "era": "세계사",
+    "difficulty": "초급",
+    "type": "OX",
+    "question": "산업혁명은 18세기 중반 시작했다.",
+    "answer": "O",
+    "confidence": 95,
+    "title": "산업혁명은 18세기 시작? 🔧",
+    "timestamp": "2026-04-19T05:55:25.974901"
+  },
+  {
+    "episode_num": 83,
+    "quiz_idx": 5,
+    "era": "삼국",
+    "difficulty": "초급",
+    "type": "4지선다",
+    "question": "신라의 초대 왕은 누구?",
+    "answer": "3",
+    "confidence": 95,
+    "title": "신라의 초기 왕들👑",
+    "timestamp": "2026-04-19T05:55:25.974903"
   }
 ]
